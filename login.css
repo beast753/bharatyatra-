@@ -1,0 +1,50 @@
+/* =========================================================
+   BharatYatra — LOGIN.HTML page styles
+   Auth card, login/signup tabs, form fields, social sign-in.
+   ========================================================= */
+.auth-wrap{
+  max-width:420px; margin:0 auto;
+  background:#fff; border:1px solid var(--line); border-radius:var(--radius);
+  padding:32px; box-shadow:var(--shadow);
+}
+.auth-tabs{ display:flex; gap:6px; background:var(--paper-2); border-radius:10px; padding:4px; margin-bottom:24px; }
+.auth-tabs button{
+  flex:1; padding:10px; border:none; border-radius:8px; background:none;
+  font-family:var(--display); font-weight:700; color:var(--ink-soft); font-size:.92rem;
+}
+.auth-tabs button.active{ background:var(--indigo); color:#fff; }
+.auth-form{ display:none; }
+.auth-form.active{ display:block; }
+.auth-form label{ display:block; font-size:.8rem; color:var(--ink-soft); margin-bottom:5px; font-family:var(--mono); text-transform:uppercase; letter-spacing:1px; }
+.auth-form input, .auth-form select{
+  width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:8px;
+  font-family:var(--body); font-size:.95rem; margin-bottom:16px;
+}
+.auth-form .btn{ width:100%; text-align:center; }
+.auth-form .btn{ padding:13px 16px; }
+.auth-wrap{ box-shadow:0 16px 36px rgba(28,42,77,.13); }
+.auth-note{ text-align:center; font-size:.82rem; color:var(--ink-soft); margin-top:16px; }
+.divider-or{ display:flex; align-items:center; gap:10px; margin:18px 0; color:var(--ink-soft); font-size:.8rem; }
+.divider-or::before, .divider-or::after{ content:""; flex:1; height:1px; background:var(--line); }
+.social-btn{
+  width:100%; padding:11px; border:1px solid var(--line); border-radius:8px;
+  background:#fff; font-family:var(--body); font-weight:600; font-size:.9rem;
+  display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:10px;
+  color:var(--ink);
+}
+.social-btn:hover{ background:var(--paper-2); }
+.social-btn{ transition:background .15s, border-color .15s, transform .15s; }
+.social-btn:hover{ border-color:#c8bda5; transform:translateY(-1px); }
+.social-btn.google{
+  border-color:rgba(0,0,0,0.08);
+  background:#fff;
+}
+.social-icon{
+  width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center;
+}
+.social-icon.google{
+  background:#fff;
+}
+.social-icon.google svg{
+  width:18px; height:18px;
+}

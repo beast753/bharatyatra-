@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Popular Routes — BharatYatra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="routes.css">
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="db-client.js"></script>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a href="index.html" class="brand">BharatYatra<span class="dot">.</span></a>
+    <button class="nav-toggle" aria-label="Toggle menu">&#9776;</button>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="routes.html" class="active">Popular Routes</a></li>
+      <li><a href="booking.html">Book a Bus</a></li>
+      <li><a href="charter.html">Charter a Bus</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li id="navAuthSlot"></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero" style="padding:40px 0 50px;">
+  <div class="wrap">
+    <div class="hero-eyebrow">All routes</div>
+    <h1 style="font-size:2.2rem;">Popular intercity routes</h1>
+    <p class="sub">Tap any route to see live bus results, fares and seat availability.</p>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="routes-toolbar">
+      <input type="search" id="routeSearch" placeholder="Search by departure or destination city" aria-label="Search popular routes">
+    </div>
+    <div class="grid-4" id="allRoutes"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <h4>BharatYatra</h4>
+      <p style="max-width:32ch; font-size:.9rem;">Book intercity bus tickets across India — search, compare, and pay securely.</p>
+    </div>
+    <div>
+      <h4>Explore</h4>
+      <p><a href="index.html">Home</a></p>
+      <p><a href="booking.html">Book a bus</a></p>
+      <p><a href="about.html">About the project</a></p>
+    </div>
+    <div>
+      <h4>Contact</h4>
+      <p><a href="contact.html">Get in touch</a></p>
+    </div>
+  </div>
+  <div class="wrap fine">© 2026 BharatYatra. All rights reserved.</div>
+</footer>
+
+<script src="common.js"></script>
+<script src="routes.js"></script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — BharatYatra</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="admin.css">
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="db-client.js"></script>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a href="index.html" class="brand">BharatYatra<span class="dot">.</span></a>
+    <span style="font-family:var(--mono); font-size:.8rem; color:var(--ink-soft); letter-spacing:.05em;">ADMIN</span>
+  </div>
+</nav>
+
+<header class="hero" style="padding:36px 0 40px;">
+  <div class="wrap">
+    <div class="hero-eyebrow">Staff only</div>
+    <h1 style="font-size:2rem;">Admin dashboard</h1>
+    <p class="sub" id="adminSub">Log in with an admin account to see every booking made on the site.</p>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+
+    <!-- Login gate -->
+    <div class="auth-wrap" id="adminLoginBox" style="max-width:420px;">
+      <div id="adminAlert" class="alert hidden"></div>
+      <form id="adminLoginForm">
+        <label for="adminEmail">Email</label>
+        <input type="email" id="adminEmail" placeholder="you@example.com" required>
+        <label for="adminPassword">Password</label>
+        <input type="password" id="adminPassword" placeholder="••••••••" required>
+        <button type="submit" class="btn dark" style="width:100%;">Log in</button>
+      </form>
+    </div>
+
+    <!-- Not an admin -->
+    <div id="notAdminBox" class="alert hidden" style="max-width:420px;">
+      That account doesn't have admin access.
+      <button type="button" id="notAdminSignOutBtn" class="btn ghost mt-30" style="width:100%;">Sign out &amp; try another account</button>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="adminDashboard" class="hidden">
+      <div class="results-toolbar">
+        <div class="route" id="adminWelcome">Dashboard</div>
+        <div class="admin-dashboard-actions">
+          <button type="button" id="refreshDashboardBtn" class="btn ghost">Refresh data</button>
+          <button type="button" id="adminSignOutBtn" class="btn ghost">Sign out</button>
+        </div>
+      </div>
+
+      <div class="grid-3" id="adminStats" style="margin-bottom:20px;"></div>
+
+      <div class="card" style="margin-bottom:28px;">
+        <h3 style="margin-bottom:4px;">Revenue by source</h3>
+        <p style="font-size:.85rem; color:var(--ink-soft); margin-bottom:16px;">Regular bookings vs. charter payments</p>
+        <div id="revenueChart"></div>
+        <div id="revenueToday" style="margin-top:16px; padding-top:14px; border-top:1px dashed var(--line); font-size:.85rem; color:var(--ink-soft);"></div>
+      </div>
+
+      <div class="admin-tabs">
+        <button type="button" class="admin-tab-btn active" data-tab="bookings">Bookings</button>
+        <button type="button" class="admin-tab-btn" data-tab="users">Registered users</button>
+        <button type="button" class="admin-tab-btn" data-tab="charter">Charter requests</button>
+        <button type="button" class="admin-tab-btn" data-tab="operations">Operations</button>
+      </div>
+
+      <!-- Bookings tab -->
+      <div id="adminTabBookings" class="admin-tab-panel">
+        <div class="admin-toolbar">
+          <input type="text" id="bookingSearch" placeholder="Search by PNR, passenger name, or route...">
+          <select id="bookingSort">
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="amount-high">Amount: high to low</option>
+            <option value="amount-low">Amount: low to high</option>
+          </select>
+          <select id="bookingStatusFilter">
+            <option value="all">All statuses</option>
+            <option value="confirmed">Confirmed only</option>
+            <option value="cancelled">Cancelled only</option>
+          </select>
+          <select id="bookingDateFilter">
+            <option value="all">Any journey date</option>
+            <option value="today">Journey today</option>
+            <option value="upcoming">Upcoming journeys</option>
+            <option value="past">Past journeys</option>
+          </select>
+          <button type="button" class="btn ghost" id="exportCsvBtn">⬇️ Export CSV</button>
+        </div>
+        <div id="adminBookingsEmpty" class="alert hidden">No bookings in the database yet.</div>
+        <div id="adminBookingsList"></div>
+      </div>
+
+      <!-- Users tab -->
+      <div id="adminTabUsers" class="admin-tab-panel hidden">
+        <div class="admin-toolbar">
+          <input type="text" id="userSearch" placeholder="Search by name, email, or phone...">
+        </div>
+        <div id="adminUsersEmpty" class="alert hidden">No registered users yet.</div>
+        <div id="adminUsersList"></div>
+      </div>
+
+      <!-- Charter requests tab -->
+      <div id="adminTabCharter" class="admin-tab-panel hidden">
+        <div class="grid-3" id="charterStats" style="margin-bottom:18px;"></div>
+        <div class="admin-toolbar">
+          <input type="text" id="charterSearch" placeholder="Search by reference ID, name, or route...">
+          <select id="charterStatusFilter">
+            <option value="all">All requests</option>
+            <option value="paid">Paid only</option>
+            <option value="pending">Payment pending</option>
+          </select>
+          <button type="button" class="btn ghost" id="exportCharterCsvBtn">⬇️ Export CSV</button>
+        </div>
+        <div id="adminCharterEmpty" class="alert hidden">No charter requests yet.</div>
+        <div id="adminCharterList"></div>
+      </div>
+
+      <div id="adminTabOperations" class="admin-tab-panel hidden">
+        <div class="card">
+          <h3>Seat lookup</h3>
+          <p class="admin-help">Enter the exact bus ID shown in a booking to inspect its shared seat inventory.</p>
+          <div class="admin-toolbar"><input id="seatLookupBusId" placeholder="Bus ID"><button id="seatLookupBtn" type="button" class="btn dark">Check seats</button></div>
+          <div id="seatLookupResult" class="hidden"></div>
+        </div>
+        <div class="card" style="margin-top:18px;">
+          <h3>Admin access</h3>
+          <p class="admin-help">Admin permissions are managed securely in Supabase. Add or remove emails in the <code>admins</code> table in the Supabase Table Editor.</p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <div class="wrap fine">© 2026 BharatYatra. Admin area — not indexed by search engines.</div>
+</footer>
+
+<script src="common.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

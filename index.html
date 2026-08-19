@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BharatYatra — Bus Tickets Across India</title>
+<meta name="description" content="Search and book intercity bus tickets across India. Compare operators, pick your seat, travel easy.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="index.css">
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="db-client.js"></script>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a href="index.html" class="brand">BharatYatra<span class="dot">.</span></a>
+    <button class="nav-toggle" aria-label="Toggle menu">&#9776;</button>
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="routes.html">Popular Routes</a></li>
+      <li><a href="booking.html">Book a Bus</a></li>
+      <li><a href="charter.html">Charter a Bus</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li id="navAuthSlot"></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-eyebrow">Bus travel · Reimagined for India</div>
+    <h1>One ticket. Every highway in India.</h1>
+    <p class="sub">From hill towns to metro cities — search, compare and reserve your seat on thousands of intercity coaches, sleeper buses and Volvo routes.</p>
+
+    <form class="ticket" id="searchForm">
+      <div class="ticket-main">
+        <div class="field">
+          <label for="fromCity">From</label>
+          <select id="fromCity" data-city-select>
+            <option value="">Choose city</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="toCity">To</label>
+          <select id="toCity" data-city-select>
+            <option value="">Choose city</option>
+          </select>
+        </div>
+        <button type="button" class="swap-btn" aria-label="Swap cities" title="Swap cities">&#8646;</button>
+        <div class="field">
+          <label for="travelDate">Date of journey</label>
+          <input type="date" id="travelDate">
+        </div>
+      </div>
+      <div class="ticket-stub">
+        <div>
+          <div class="stub-label">Boarding Pass</div>
+          <p style="font-size:.85rem; margin-top:6px;">No booking fee. Free cancellation up to 6 hrs before departure.</p>
+        </div>
+        <button type="submit" class="go-btn">Search Buses</button>
+      </div>
+    </form>
+
+    <ul class="trust-strip" aria-label="Why book with BharatYatra">
+      <li><span aria-hidden="true">✓</span> Verified operators</li>
+      <li><span aria-hidden="true">⌁</span> Secure payments</li>
+      <li><span aria-hidden="true">◷</span> 24/7 support</li>
+      <li><span aria-hidden="true">↺</span> Free cancellation</li>
+    </ul>
+
+    <div class="search-shortcuts" aria-label="Search shortcuts">
+      <div class="shortcut-group">
+        <span class="shortcut-label">Travel date</span>
+        <div class="shortcut-actions">
+          <button type="button" class="shortcut-btn" data-date-offset="0">Today</button>
+          <button type="button" class="shortcut-btn" data-date-offset="1">Tomorrow</button>
+          <button type="button" class="shortcut-btn" data-weekend>Next weekend</button>
+        </div>
+      </div>
+      <div class="shortcut-group">
+        <span class="shortcut-label">Popular routes</span>
+        <div class="shortcut-actions">
+          <button type="button" class="shortcut-btn" data-search-route="Delhi|Jaipur">Delhi → Jaipur</button>
+          <button type="button" class="shortcut-btn" data-search-route="Mumbai|Pune">Mumbai → Pune</button>
+          <button type="button" class="shortcut-btn" data-search-route="Bengaluru|Chennai">Bengaluru → Chennai</button>
+        </div>
+      </div>
+      <div class="shortcut-group recent-searches hidden" id="recentSearches">
+        <span class="shortcut-label">Recent searches</span>
+        <div class="shortcut-actions" id="recentSearchActions"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">Why BharatYatra</div>
+      <h2>Built for the way India travels by road</h2>
+    </div>
+    <div class="grid-3">
+      <div class="card">
+        <div class="icon">🚌</div>
+        <h3>8,000+ routes</h3>
+        <p>Every major highway corridor covered — metros, tier-2 towns and everything in between.</p>
+      </div>
+      <div class="card">
+        <div class="icon">💺</div>
+        <h3>Pick your own seat</h3>
+        <p>Real seat maps for sleeper and seater coaches, so you know exactly where you'll sit.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🔒</div>
+        <h3>Safe & simple booking</h3>
+        <p>Instant PNR confirmation, clear fares, and free cancellation windows on most operators.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">Meet the fleet</div>
+      <h2>Comfortable coaches, inside and out</h2>
+    </div>
+    <div class="bus-gallery" style="box-shadow:var(--shadow);">
+      <div class="gallery-imgs">
+        <figure>
+          <img src="assets/home-exterior.jpg" alt="BharatYatra coach, exterior side view">
+          <figcaption>Exterior view</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/home-interior.jpg" alt="Illustration of the AC sleeper and seater cabin interior">
+          <figcaption>Interior / cabin view</figcaption>
+        </figure>
+      </div>
+      <div class="feature-list">
+        <span class="pill">❄️ Air conditioned</span>
+        <span class="pill">🛏️ Blanket &amp; pillow</span>
+        <span class="pill">📶 WiFi onboard</span>
+        <span class="pill">🔌 Charging point</span>
+        <span class="pill">📍 Live tracking</span>
+        <span class="pill">🎥 CCTV onboard</span>
+        <span class="pill">💧 Water bottle</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="background:var(--paper-2)">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">Trending this week</div>
+      <h2>Popular routes travellers are booking</h2>
+    </div>
+    <div class="grid-4" id="quickRoutes">
+      <!-- filled by inline script below -->
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap text-center">
+    <h2>Ready for your next trip?</h2>
+    <p style="max-width:50ch; margin:0 auto 20px;">Head to the routes page for a fuller list, or jump straight into a search above.</p>
+    <a href="routes.html" class="btn dark">Browse all routes</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <h4>BharatYatra</h4>
+      <p style="max-width:32ch; font-size:.9rem;">Book intercity bus tickets across India — search, compare, and pay securely.</p>
+    </div>
+    <div>
+      <h4>Explore</h4>
+      <p><a href="routes.html">Popular routes</a></p>
+      <p><a href="booking.html">Book a bus</a></p>
+      <p><a href="about.html">About the project</a></p>
+    </div>
+    <div>
+      <h4>Contact</h4>
+      <p><a href="contact.html">Get in touch</a></p>
+    </div>
+  </div>
+  <div class="wrap fine">© 2026 BharatYatra. All rights reserved. · <a href="admin.html" style="color:#8b95b3;">Admin</a></div>
+</footer>
+
+<script src="common.js"></script>
+<script src="index.js"></script>
+</body>
+</html>

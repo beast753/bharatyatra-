@@ -1,0 +1,169 @@
+/* =========================================================
+   BharatYatra — INDEX.HTML page styles
+   Ticket-shaped search form, fleet gallery, trending route cards.
+   (.hero styles live in base.css — used by every page's header)
+   ========================================================= */
+
+/* the ticket stub */
+.ticket{
+  margin-top:38px;
+  display:grid;
+  grid-template-columns:1fr 220px;
+  background:var(--paper);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  overflow:visible;
+  position:relative;
+}
+.ticket-main{
+  padding:26px 30px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px 22px;
+}
+.ticket-main .field{ display:flex; flex-direction:column; gap:6px; }
+.ticket-main label{
+  font-family:var(--mono);
+  font-size:.72rem;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+}
+.ticket-main input, .ticket-main select{
+  border:none;
+  border-bottom:2px solid var(--line);
+  background:transparent;
+  font-family:var(--body);
+  font-size:1.05rem;
+  color:var(--indigo);
+  font-weight:600;
+  padding:6px 2px;
+}
+.ticket-main input:focus, .ticket-main select:focus{ border-color:var(--teal); outline:none; }
+.swap-btn{
+  justify-self:start;
+  align-self:end;
+  background:var(--paper-2);
+  border:1px solid var(--line);
+  border-radius:50%;
+  width:34px; height:34px;
+  font-size:1rem;
+  color:var(--teal);
+  transition:transform .2s;
+}
+.swap-btn:hover{ transform:rotate(180deg); }
+
+.ticket-stub{
+  background:var(--marigold);
+  border-left:2px dashed var(--indigo);
+  border-radius:0 var(--radius) var(--radius) 0;
+  padding:24px 20px;
+  display:flex; flex-direction:column; justify-content:space-between;
+  color:var(--indigo);
+}
+.ticket-stub .stub-label{
+  font-family:var(--mono);
+  font-size:.7rem;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  opacity:.75;
+}
+.ticket-stub .go-btn{
+  background:var(--indigo);
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  padding:14px 16px;
+  font-weight:700;
+  font-size:1rem;
+  font-family:var(--display);
+  letter-spacing:.3px;
+  transition:background .15s, transform .1s;
+}
+.ticket-stub .go-btn:hover{ background:var(--indigo-2); }
+.ticket-stub .go-btn:active{ transform:scale(.98); }
+
+.trust-strip{
+  display:flex; flex-wrap:wrap; gap:10px 22px;
+  list-style:none; margin:18px 0 0; padding:0;
+  color:#dce3f2; font-size:.82rem; font-weight:600;
+}
+.trust-strip li{ display:flex; align-items:center; gap:7px; }
+.trust-strip span{ color:var(--marigold); font-size:1rem; font-weight:700; }
+
+.search-shortcuts{
+  display:flex; flex-wrap:wrap; gap:14px 28px;
+  margin-top:22px;
+}
+.shortcut-group{ display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+.shortcut-label{
+  color:#cfd6e8; font-family:var(--mono); font-size:.68rem;
+  letter-spacing:1px; text-transform:uppercase;
+}
+.shortcut-actions{ display:flex; flex-wrap:wrap; gap:7px; }
+.shortcut-btn{
+  padding:6px 10px; border:1px solid rgba(255,255,255,.3); border-radius:20px;
+  background:rgba(255,255,255,.08); color:#fff; font-family:var(--body);
+  font-size:.78rem; font-weight:600; transition:background .15s, border-color .15s;
+}
+.shortcut-btn:hover{ background:rgba(232,163,61,.2); border-color:var(--marigold); }
+
+/* perforation notches */
+.ticket::before, .ticket::after{
+  content:"";
+  position:absolute;
+  width:22px; height:22px;
+  background:var(--paper);
+  border-radius:50%;
+  left:calc(100% - 220px - 11px);
+  z-index:3;
+}
+.ticket::before{ top:-11px; }
+.ticket::after{ bottom:-11px; }
+
+@media (max-width:760px){
+  .ticket{ grid-template-columns:1fr; }
+  .ticket-main{ grid-template-columns:1fr; }
+  .ticket-stub{ border-left:none; border-top:2px dashed var(--indigo); border-radius:0 0 var(--radius) var(--radius); flex-direction:row; align-items:center; }
+  .ticket::before, .ticket::after{ display:none; }
+  .trust-strip{ gap:8px 14px; }
+  .search-shortcuts{ gap:12px; }
+  .shortcut-group{ align-items:flex-start; flex-direction:column; gap:6px; }
+}
+
+/* =========================== BUS GALLERY (fleet section) =========================== */
+.bus-gallery{
+  background:#fff; border:1px solid var(--line); border-radius:var(--radius);
+  padding:22px; margin-bottom:24px;
+}
+.bus-gallery .gallery-imgs{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:18px; }
+.bus-gallery .gallery-imgs figure{ margin:0; background:var(--paper-2); border-radius:10px; overflow:hidden; }
+.bus-gallery .gallery-imgs figcaption{ padding:8px 12px; font-size:.78rem; font-family:var(--mono); color:var(--ink-soft); text-transform:uppercase; letter-spacing:1px; }
+.feature-list{ display:flex; flex-wrap:wrap; gap:10px; }
+.feature-list .pill{ font-size:.8rem; padding:6px 12px; }
+@media (max-width:700px){ .bus-gallery .gallery-imgs{ grid-template-columns:1fr; } }
+
+.bus-gallery .gallery-imgs img{ width:100%; height:260px; object-fit:cover; display:block; }
+
+.bus-gallery .gallery-imgs figure{ min-height:260px; }
+
+/* =========================== TRENDING ROUTE CARDS =========================== */
+.route-card{
+  background:#fff; border:1px solid var(--line); border-radius:var(--radius);
+  padding:20px; display:flex; flex-direction:column; gap:10px;
+}
+.route-card .route-line{
+  display:flex; align-items:center; gap:8px;
+  font-family:var(--display); font-weight:700; color:var(--indigo);
+}
+.route-card .route-line .arrow{ color:var(--marigold); }
+.route-card .meta{ font-size:.85rem; color:var(--ink-soft); font-family:var(--mono); }
+.route-card .price{ font-weight:700; color:var(--teal); font-size:1.15rem; margin-top:auto; }
+.route-card .book-link{
+  align-self:flex-start;
+  font-size:.85rem; font-weight:700; color:var(--rust);
+  border-bottom:1px solid var(--rust);
+}
+.route-card:hover{ transform:translateY(-3px); }
+.route-card .book-link{ transition:color .15s, border-color .15s; }
+.route-card:hover .book-link{ color:var(--indigo); border-color:var(--indigo); }

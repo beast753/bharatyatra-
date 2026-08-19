@@ -1,0 +1,13 @@
+/* =========================================================
+   BharatYatra — CONTACT.HTML page styles
+   The contact form reuses the passenger-form component
+   (also used on booking.html's passenger details step).
+   ========================================================= */
+.passenger-form{ background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:28px; margin-top:20px; box-shadow:0 12px 32px rgba(28,42,77,.07); }
+.passenger-form .row2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+.passenger-form label{ display:block; font-size:.8rem; color:var(--ink-soft); margin-bottom:5px; font-family:var(--mono); text-transform:uppercase; letter-spacing:1px;}
+.passenger-form input, .passenger-form select{
+  width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:8px; font-family:var(--body); font-size:.95rem;
+}
+@media (max-width:700px){ .passenger-form .row2{ grid-template-columns:1fr; } }
+.passenger-form label span{ color:var(--ink-soft); font-size:.74rem; text-transform:none; letter-spacing:0; }.support-faq{ background:var(--paper-2); }.faq-list{ display:grid; gap:10px; }.faq-list details{ background:#fff; border:1px solid var(--line); border-radius:10px; padding:15px 18px; }.faq-list summary{ color:var(--indigo); font-family:var(--display); font-weight:700; cursor:pointer; }.faq-list p{ margin:10px 0 0; color:var(--ink-soft); font-size:.92rem; }

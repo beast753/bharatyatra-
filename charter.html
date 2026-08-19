@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Charter a Bus — BharatYatra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="charter.css?v=20260819">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="db-client.js"></script>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a href="index.html" class="brand">BharatYatra<span class="dot">.</span></a>
+    <button class="nav-toggle" aria-label="Toggle menu">&#9776;</button>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="routes.html">Popular Routes</a></li>
+      <li><a href="booking.html">Book a Bus</a></li>
+      <li><a href="charter.html" class="active">Charter a Bus</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li id="navAuthSlot"></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero" style="padding:40px 0 50px;">
+  <div class="wrap">
+    <div class="hero-eyebrow">Private hire</div>
+    <h1 style="font-size:2.2rem;">Book a bus for anything</h1>
+    <p class="sub">Weddings, corporate offsites, school trips, pilgrimages, family functions — tell us the details and our team will put together a quote.</p>
+  </div>
+</header>
+
+<section>
+  <div class="wrap" style="max-width:760px;">
+
+    <!-- Request form -->
+    <form class="passenger-form" id="charterForm">
+      <h2 style="margin-bottom:18px;">Trip details</h2>
+      <ol class="charter-progress" aria-label="Charter request progress">
+        <li class="active"><span>1</span> Trip details</li>
+        <li><span>2</span> Preferences</li>
+        <li><span>3</span> Get quote</li>
+      </ol>
+
+      <h3 class="form-section-title">Your contact</h3>
+      <div class="row2">
+        <div>
+          <label for="charterName">Full name</label>
+          <input type="text" id="charterName" placeholder="e.g. Ananya Sharma" required>
+        </div>
+        <div>
+          <label for="charterPhone">Phone number</label>
+          <input type="tel" id="charterPhone" placeholder="10-digit mobile number" required>
+        </div>
+      </div>
+
+      <h3 class="form-section-title">Contact &amp; trip purpose</h3>
+      <div class="row2">
+        <div>
+          <label for="charterEmail">Email</label>
+          <input type="email" id="charterEmail" placeholder="you@example.com" required>
+        </div>
+        <div>
+          <label for="charterPurpose">Purpose of trip</label>
+          <select id="charterPurpose">
+            <option>Wedding</option>
+            <option>Corporate event / offsite</option>
+            <option>School or college trip</option>
+            <option>Pilgrimage</option>
+            <option>Family function</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+
+      <h3 class="form-section-title">Your journey</h3>
+      <div class="row2">
+        <div>
+          <label for="charterFromState">Pickup state / UT</label>
+          <select id="charterFromState" class="state-select" required><option value="">Select an Indian state or UT</option></select>
+        </div>
+        <div>
+          <label for="charterToState">Drop state / UT</label>
+          <select id="charterToState" class="state-select" required><option value="">Select an Indian state or UT</option></select>
+        </div>
+      </div>
+      <div class="row2">
+        <div>
+          <label for="charterFrom">Pickup city or venue</label>
+          <input type="text" id="charterFrom" placeholder="e.g. Pune or Hinjawadi" required>
+        </div>
+        <div>
+          <label for="charterTo">Drop city or venue</label>
+          <input type="text" id="charterTo" placeholder="e.g. Mahabaleshwar" required>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div><label for="charterTripType">Trip type</label><select id="charterTripType"><option value="one-way">One-way</option><option value="round-trip">Round trip</option><option value="multi-day">Multi-day hire</option></select></div>
+        <div>
+          <label for="charterDate">Journey date</label>
+          <input type="date" id="charterDate" required>
+        </div>
+        <div>
+          <label for="charterReturnDate">Return / final day</label>
+          <input type="date" id="charterReturnDate">
+        </div>
+      </div>
+
+      <div class="row2">
+        <div>
+          <label for="charterPassengers">Number of passengers</label>
+          <input type="number" id="charterPassengers" min="1" max="60" placeholder="e.g. 35" required>
+          <p class="field-hint" id="busRecommendation">Enter passenger count for a bus recommendation.</p>
+        </div>
+        <div>
+          <label for="charterBusCount">How many buses do you need?</label>
+          <input type="number" id="charterBusCount" min="1" max="20" value="1" required>
+        </div>
+      </div>
+
+      <h3 class="form-section-title">Bus preferences</h3>
+      <div style="margin-bottom:14px;"><label for="charterStops">Additional pickup or drop points</label><input type="text" id="charterStops" placeholder="Optional: e.g. Wakad, Hinjawadi"></div>
+      <fieldset class="amenity-picker"><legend>Required amenities <span>(optional)</span></legend><div class="amenity-options">
+        <label><input type="checkbox" name="charterAmenity" value="Air conditioning"> Air conditioning</label><label><input type="checkbox" name="charterAmenity" value="Wi-Fi"> Wi-Fi</label><label><input type="checkbox" name="charterAmenity" value="Charging points"> Charging points</label><label><input type="checkbox" name="charterAmenity" value="Washroom"> Washroom</label><label><input type="checkbox" name="charterAmenity" value="TV / music system"> TV / music system</label><label><input type="checkbox" name="charterAmenity" value="Wheelchair access"> Wheelchair access</label>
+      </div></fieldset>
+      <div class="row2">
+        <div>
+          <label for="charterBusType">Preferred bus type</label>
+          <select id="charterBusType">
+            <option>Non-AC Seater</option>
+            <option>AC Seater</option>
+            <option>AC Sleeper</option>
+            <option>Mini bus (up to 20 seats)</option>
+            <option>Volvo Multi-Axle</option>
+          </select>
+        </div>
+      </div>
+      <aside class="charter-estimate" aria-live="polite"><span class="estimate-label">Estimated starting fare</span><strong id="charterLiveEstimate"></strong><span id="charterEstimateNote">Based on bus type, bus count, and trip duration. Final price depends on route and stops.</span></aside>
+
+      <div style="margin-bottom:14px;">
+        <label for="charterNotes">Anything else we should know?</label>
+        <textarea id="charterNotes" rows="4" style="width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:8px; font-family:var(--body); font-size:.95rem;" placeholder="Number of stops, luggage, decoration requests, accessibility needs..."></textarea>
+      </div>
+
+      <button type="submit" class="btn dark">Request a quote</button>
+    </form>
+
+    <!-- Confirmation -->
+    <div class="hidden mt-30" id="charterConfirmation">
+      <div class="eticket" id="charterTicket">
+        <div class="eticket-head">
+          <div class="eb">BharatYatra <span style="opacity:.6; font-weight:400;">Charter Request</span></div>
+          <div class="status" style="background:var(--marigold); color:#5a3f0a;">REQUEST RECEIVED</div>
+        </div>
+        <div class="eticket-body" style="grid-template-columns:1fr;">
+          <div>
+            <div class="detail-row"><span>Reference ID</span><span id="ccRef" class="mono"></span></div>
+            <div class="detail-row"><span>Name</span><span id="ccName"></span></div>
+            <div class="detail-row"><span>Route</span><span id="ccRoute"></span></div>
+            <div class="detail-row"><span>Journey date</span><span id="ccDate"></span></div>
+            <div class="detail-row"><span>Passengers</span><span id="ccPax"></span></div>
+            <div class="detail-row"><span>Bus type</span><span id="ccBusType"></span></div>
+            <div class="detail-row"><span>Amenities</span><span id="ccAmenities"></span></div>
+          </div>
+        </div>
+        <div class="eticket-actions no-print">
+          <p style="width:100%; font-size:.9rem; color:var(--ink-soft); margin:0 0 10px;">Our team will call or email you within 24 hours with a quote. Keep your reference ID handy.</p>
+          <a href="index.html" class="btn ghost">Back to home</a>
+        </div>
+      </div>
+
+      <!-- Advance payment — fare is calculated automatically from bus type × bus count × trip days -->
+      <div class="passenger-form mt-30" id="charterPaymentSection">
+        <h2>Charter payment</h2>
+        <p style="color:var(--ink-soft); font-size:.9rem; margin-bottom:16px; max-width:60ch;">
+          Based on your selected bus type and how many buses you need, here's your estimated fare. Our team may fine-tune this once they review your exact route and dates.
+        </p>
+
+        <div class="eticket" style="box-shadow:none; border:1px solid var(--line); margin-bottom:20px;">
+          <div class="eticket-body" style="grid-template-columns:1fr;">
+            <div>
+              <div class="detail-row"><span>Bus type</span><span id="fareBusType"></span></div>
+              <div class="detail-row"><span>Fare per bus / day</span><span id="fareRate"></span></div>
+              <div class="detail-row"><span>Number of buses</span><span id="fareBusCount"></span></div>
+              <div class="detail-row"><span>Trip duration</span><span id="fareDays"></span></div>
+              <div class="detail-row"><span>Total estimated fare</span><span id="fareTotal" class="mono" style="color:var(--teal); font-weight:700;"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="btn dark" id="charterProceedPayBtn">Proceed to pay</button>
+
+        <div class="hidden mt-30" id="charterPayTabsWrap">
+          <p style="margin-bottom:16px;">Amount payable: <strong id="charterPayAmountDisplay" class="mono" style="color:var(--teal); font-size:1.2rem;"></strong></p>
+
+          <div class="pay-tabs">
+            <button type="button" class="charter-pay-tab-btn active" data-pay="upi">UPI / QR Code</button>
+            <button type="button" class="charter-pay-tab-btn" data-pay="card">Debit / Credit Card</button>
+            <button type="button" class="charter-pay-tab-btn" data-pay="netbanking">Net Banking</button>
+          </div>
+
+          <div class="pay-panel active" id="charterPayPanelUpi">
+            <div class="qr-box">
+              <div class="payment-qr-frame"><img class="payment-qr-image" src="assets/upi-qr-only.jpeg" alt="Payment QR code"></div>
+              <div>
+                <p style="font-weight:600; color:var(--indigo);">Scan &amp; pay with any UPI app</p>
+                <p style="font-size:.88rem; color:var(--ink-soft); max-width:34ch;">Google Pay, PhonePe, Paytm or any BHIM-UPI app.</p>
+                <div style="margin-top:12px;">
+                  <label for="charterUpiId">Or enter your UPI ID</label>
+                  <input type="text" id="charterUpiId" placeholder="yourname@upi" style="width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:8px;">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pay-panel" id="charterPayPanelCard">
+            <p style="color:var(--ink-soft); font-size:.92rem; max-width:44ch;">
+              You'll be securely redirected to Razorpay's checkout to enter your card details.
+              Card numbers are never seen by or stored on this site.
+            </p>
+          </div>
+
+          <div class="pay-panel" id="charterPayPanelNetbanking">
+            <p style="color:var(--ink-soft); font-size:.92rem; max-width:44ch;">
+              You'll be securely redirected to Razorpay's checkout to pick your bank and log in
+              to your net banking portal to complete payment.
+            </p>
+          </div>
+
+          <button type="button" class="btn pay-now-btn" id="charterPayNowBtn">Pay <span id="charterPayNowAmount"></span> now</button>
+
+          <div class="processing hidden" id="charterProcessingBox">
+            <div class="spinner"></div>
+            <p>Processing your payment securely…</p>
+          </div>
+        </div>
+
+        <div class="hidden mt-30" id="charterPaymentSuccess">
+          <div class="alert" style="background:#e3f3ee; border-color:var(--teal); color:#0f5132;">
+            ✅ Payment of <strong id="charterPaidAmount"></strong> received — payment ID <span id="charterPaymentId" class="mono"></span>. We've noted this against your charter request.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section style="background:var(--paper-2)">
+  <div class="wrap grid-3">
+    <div class="card">
+      <div class="icon">🎉</div>
+      <h3>Any occasion</h3>
+      <p>Weddings, offsites, school trips, pilgrimages — we route the right bus size and type for your group.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🧭</div>
+      <h3>Flexible routing</h3>
+      <p>Multiple pickup points, custom stops, and round trips — tell us what you need in the notes.</p>
+    </div>
+    <div class="card">
+      <div class="icon">💬</div>
+      <h3>Personal quote</h3>
+      <p>No fixed fares here — our team calls you back with pricing based on your exact trip.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <h4>BharatYatra</h4>
+      <p style="max-width:32ch; font-size:.9rem;">Book intercity bus tickets across India — search, compare, and pay securely.</p>
+    </div>
+    <div>
+      <h4>Explore</h4>
+      <p><a href="index.html">Home</a></p>
+      <p><a href="routes.html">Popular routes</a></p>
+      <p><a href="booking.html">Book a bus</a></p>
+    </div>
+    <div>
+      <h4>Contact</h4>
+      <p><a href="contact.html">Get in touch</a></p>
+    </div>
+  </div>
+  <div class="wrap fine">© 2026 BharatYatra. All rights reserved. · <a href="admin.html" style="color:#8b95b3;">Admin</a></div>
+</footer>
+
+<script src="common.js"></script>
+<script src="charter.js"></script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — BharatYatra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="login.css">
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="db-client.js"></script>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a href="index.html" class="brand">BharatYatra<span class="dot">.</span></a>
+    <button class="nav-toggle" aria-label="Toggle menu">&#9776;</button>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="routes.html">Popular Routes</a></li>
+      <li><a href="booking.html">Book a Bus</a></li>
+      <li><a href="charter.html">Charter a Bus</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li id="navAuthSlot"></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero" style="padding:44px 0;">
+  <div class="wrap text-center">
+    <div class="hero-eyebrow">Account</div>
+    <h1 style="font-size:2rem;">Log in to book &amp; manage tickets</h1>
+    <p class="sub" style="margin:8px auto 0;">Your details are stored securely on our own server.</p>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="auth-wrap">
+      <div class="auth-tabs">
+        <button type="button" id="tabLoginBtn" class="active">Log in</button>
+        <button type="button" id="tabSignupBtn">Sign up</button>
+      </div>
+
+      <div id="authAlert" class="alert hidden"></div>
+
+      <form class="auth-form active" id="loginForm">
+        <label for="loginEmail">Email</label>
+        <input type="email" id="loginEmail" placeholder="you@example.com" required>
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" required>
+        <button type="submit" class="btn dark">Log in</button>
+        <p class="auth-note">No account yet? <a href="#" id="goSignup" style="color:var(--teal); font-weight:600;">Sign up</a></p>
+      </form>
+
+      <form class="auth-form" id="signupForm">
+        <label for="signupName">Full name</label>
+        <input type="text" id="signupName" placeholder="e.g. Rohan Verma" required>
+        <label for="signupEmail">Email</label>
+        <input type="email" id="signupEmail" placeholder="you@example.com" required>
+        <label for="signupPhone">Phone number</label>
+        <input type="tel" id="signupPhone" placeholder="10-digit mobile number" required>
+        <label for="signupPassword">Create password</label>
+        <input type="password" id="signupPassword" placeholder="At least 6 characters" required minlength="6">
+        <button type="submit" class="btn dark">Create account</button>
+        <p class="auth-note">Already registered? <a href="#" id="goLogin" style="color:var(--teal); font-weight:600;">Log in</a></p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <h4>BharatYatra</h4>
+      <p style="max-width:32ch; font-size:.9rem;">Book intercity bus tickets across India — search, compare, and pay securely.</p>
+    </div>
+    <div>
+      <h4>Explore</h4>
+      <p><a href="index.html">Home</a></p>
+      <p><a href="routes.html">Popular routes</a></p>
+      <p><a href="booking.html">Book a bus</a></p>
+    </div>
+    <div>
+      <h4>Contact</h4>
+      <p><a href="contact.html">Get in touch</a></p>
+    </div>
+  </div>
+  <div class="wrap fine">© 2026 BharatYatra. All rights reserved.</div>
+</footer>
+
+<script src="common.js"></script>
+<script src="login.js"></script>
+</body>
+</html>

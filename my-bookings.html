@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Bookings — BharatYatra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="my-bookings.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="db-client.js"></script>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a href="index.html" class="brand">BharatYatra<span class="dot">.</span></a>
+    <button class="nav-toggle" aria-label="Toggle menu">&#9776;</button>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="routes.html">Popular Routes</a></li>
+      <li><a href="booking.html">Book a Bus</a></li>
+      <li><a href="charter.html">Charter a Bus</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li id="navAuthSlot"></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero" style="padding:40px 0 44px;">
+  <div class="wrap">
+    <div class="hero-eyebrow">Your account</div>
+    <h1 style="font-size:2.2rem;">My bookings</h1>
+    <p class="sub">Every ticket you've booked on this device, with its receipt and PNR.</p>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+
+    <div class="bookings-toolbar">
+      <div><span class="kicker">Ticket centre</span><h2>Find a booking</h2></div>
+      <input type="search" id="bookingsSearch" placeholder="Search route, operator or PNR" aria-label="Search your bookings">
+    </div>
+
+    <div id="bookingsEmpty" class="alert hidden">
+      You haven't booked any tickets yet on this device. <a href="index.html" style="color:var(--teal); font-weight:600;">Search for a bus</a> to get started.
+    </div>
+
+    <div class="grid-3" id="bookingsList"></div>
+
+    <!-- Receipt / e-ticket viewer -->
+    <div id="receiptView" class="hidden mt-30">
+      <div class="eticket" id="receiptTicket">
+        <div class="eticket-head">
+          <div class="eb">BharatYatra <span style="opacity:.6; font-weight:400;">e-Ticket</span></div>
+          <div class="status">CONFIRMED</div>
+        </div>
+        <div class="eticket-body">
+          <div>
+            <div class="detail-row"><span>Passenger</span><span id="rName"></span></div>
+            <div class="detail-row"><span>Route</span><span id="rRoute"></span></div>
+            <div class="detail-row"><span>Journey date</span><span id="rDate"></span></div>
+            <div class="detail-row"><span>Bus operator</span><span id="rBus"></span></div>
+            <div class="detail-row"><span>Departure</span><span id="rDep"></span></div>
+            <div class="detail-row"><span>Boarding point</span><span id="rBoarding"></span></div>
+            <div class="detail-row"><span>Dropping point</span><span id="rDropping"></span></div>
+            <div class="detail-row"><span>Seat(s)</span><span id="rSeats"></span></div>
+            <div class="detail-row"><span>Payment method</span><span id="rMethod"></span></div>
+            <div class="detail-row"><span>Amount paid</span><span id="rTotal"></span></div>
+            <div class="detail-row"><span>Booked on</span><span id="rBookedAt"></span></div>
+          </div>
+          <div class="eticket-qr">
+            <div id="rQr"></div>
+            <div class="pnr-big" id="rPnr"></div>
+          </div>
+        </div>
+        <div class="eticket-actions no-print">
+          <button class="btn dark" id="downloadPdfBtn" type="button">Download PDF ticket</button>
+          <button class="btn ghost" id="printReceiptBtn" type="button">Print</button>
+          <button class="btn ghost" id="cancelBookingBtn" type="button">Cancel &amp; request refund</button>
+          <button class="btn ghost" id="closeReceiptBtn" type="button">Close</button>
+          <a href="contact.html" class="btn ghost">Need help?</a>
+        </div>
+        <form id="reviewForm" class="review-form no-print">
+          <div class="review-heading"><h3>Rate your journey</h3><p>Help other travellers choose better.</p></div>
+          <div class="review-controls">
+            <label for="reviewRating">Your rating</label>
+            <select id="reviewRating"><option value="5">★★★★★ Excellent</option><option value="4">★★★★ Good</option><option value="3">★★★ Average</option><option value="2">★★ Poor</option><option value="1">★ Very poor</option></select>
+          </div>
+          <textarea id="reviewComment" rows="2" placeholder="Optional: share a short review"></textarea>
+          <button class="btn dark" type="submit">Submit review</button>
+          <p id="reviewMessage" class="hidden" style="margin-top:10px;"></p>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer class="no-print">
+  <div class="wrap">
+    <div>
+      <h4>BharatYatra</h4>
+      <p style="max-width:32ch; font-size:.9rem;">Book intercity bus tickets across India — search, compare, and pay securely.</p>
+    </div>
+    <div>
+      <h4>Explore</h4>
+      <p><a href="index.html">Home</a></p>
+      <p><a href="routes.html">Popular routes</a></p>
+      <p><a href="booking.html">Book a bus</a></p>
+    </div>
+    <div>
+      <h4>Contact</h4>
+      <p><a href="contact.html">Get in touch</a></p>
+    </div>
+  </div>
+  <div class="wrap fine">© 2026 BharatYatra. All rights reserved.</div>
+</footer>
+
+<script src="common.js"></script>
+<script src="my-bookings.js"></script>
+</body>
+</html>

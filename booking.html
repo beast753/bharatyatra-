@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book a Bus — BharatYatra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="booking.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="db-client.js"></script>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a href="index.html" class="brand">BharatYatra<span class="dot">.</span></a>
+    <button class="nav-toggle" aria-label="Toggle menu">&#9776;</button>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="routes.html">Popular Routes</a></li>
+      <li><a href="booking.html" class="active">Book a Bus</a></li>
+      <li><a href="charter.html">Charter a Bus</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li id="navAuthSlot"></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero" style="padding:36px 0 44px;">
+  <div class="wrap">
+    <div class="hero-eyebrow">Search results</div>
+    <h1 style="font-size:2rem;" id="routeLabel">Delhi → Jaipur</h1>
+    <p class="sub" id="dateLabel">Today</p>
+    <div style="margin-top:14px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+      <label for="travelDateBooking" style="font-size:.85rem; color:#c9cee6;">Change date:</label>
+      <input type="date" id="travelDateBooking" style="padding:9px 12px; border-radius:8px; border:1px solid var(--line); font-family:var(--body); font-size:.9rem;">
+    </div>
+  </div>
+</header>
+
+<section id="bookingFlow" style="padding-top:36px;">
+  <div class="wrap">
+
+    <div class="results-toolbar">
+      <div class="route">Available buses</div>
+      <div class="results-search"><input type="search" id="searchBuses" placeholder="Search operator or bus type" aria-label="Search buses"></div>
+      <div class="result-filters">
+        <select id="busTypeFilter" aria-label="Filter by bus type"><option value="all">All bus types</option><option value="AC">AC buses</option><option value="Sleeper">Sleeper buses</option><option value="Non-AC">Non-AC buses</option></select>
+        <select id="departureFilter" aria-label="Filter by departure time"><option value="all">Any departure</option><option value="morning">Morning (6 AM–12 PM)</option><option value="afternoon">Afternoon (12–6 PM)</option><option value="night">Night (6 PM–6 AM)</option></select>
+      </div>
+      <div>
+        <label for="sortBuses" style="font-size:.85rem; margin-right:8px; color:var(--ink-soft);">Sort by</label>
+        <select id="sortBuses">
+          <option value="departure">Departure time</option>
+          <option value="price">Price: low to high</option>
+          <option value="duration">Duration: shortest</option>
+          <option value="rating">Rating: highest</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="busResults"></div>
+
+    <!-- Bus photos + features + seat selection (hidden until a bus is chosen) -->
+    <div id="seatSection" class="hidden mt-30">
+
+      <div class="bus-gallery">
+        <h2 id="galleryTitle">Bus details</h2>
+        <div class="gallery-imgs">
+          <figure>
+            <img id="busExteriorImg" src="assets/home-exterior.jpg" alt="Coach exterior, side view">
+            <figcaption>Exterior view</figcaption>
+          </figure>
+          <figure>
+            <img id="busInteriorImg" src="assets/home-interior.jpg" alt="Interior view of a coach cabin">
+            <figcaption>Interior / cabin view</figcaption>
+          </figure>
+        </div>
+        <div class="feature-list" id="featureList"></div>
+      </div>
+
+      <h2>Choose your seats</h2>
+      <div class="seat-map">
+        <div class="bus-shell">
+          <div class="steering"></div>
+          <div class="seat-grid" id="seatGrid"></div>
+          <div class="legend">
+            <span><i></i> Available</span>
+            <span><i class="b"></i> Booked</span>
+            <span><i class="s"></i> Selected</span>
+          </div>
+        </div>
+        <div class="summary-panel" id="summaryPanel">
+          <h3>Fare summary</h3>
+          <p style="font-size:.9rem; opacity:.8;">Select at least one seat to continue.</p>
+        </div>
+      </div>
+      <button type="button" class="btn mt-30" id="proceedBtn" disabled>Proceed to passenger details</button>
+
+      <!-- Passenger form -->
+      <div class="passenger-form hidden" id="passengerForm">
+        <h2>Passenger details</h2>
+        <form id="bookingForm">
+          <div class="row2">
+            <div>
+              <label for="passengerName">Full name</label>
+              <input type="text" id="passengerName" placeholder="e.g. Ananya Sharma" required>
+            </div>
+            <div>
+              <label for="passengerPhone">Phone number</label>
+              <input type="tel" id="passengerPhone" placeholder="10-digit mobile number" required>
+            </div>
+          </div>
+          <div class="row2">
+            <div>
+              <label for="passengerAge">Age</label>
+              <input type="number" id="passengerAge" min="1" max="110" placeholder="e.g. 24">
+            </div>
+            <div>
+              <label for="passengerGender">Gender</label>
+              <select id="passengerGender">
+                <option>Female</option>
+                <option>Male</option>
+              </select>
+            </div>
+          </div>
+          <div class="row2">
+            <div><label for="boardingPoint">Boarding point</label><select id="boardingPoint" required></select></div>
+            <div><label for="droppingPoint">Dropping point</label><select id="droppingPoint" required></select></div>
+          </div>
+          <button type="submit" class="btn dark">Continue to payment</button>
+        </form>
+      </div>
+
+      <!-- Booking summary / receipt review (shown after passenger details, before payment) -->
+      <div class="passenger-form hidden" id="summarySection">
+        <h2>Review your booking</h2>
+        <div class="eticket" id="summaryTicket" style="box-shadow:none; border:1px solid var(--line);">
+          <div class="eticket-head">
+            <div class="eb">BharatYatra <span style="opacity:.6; font-weight:400;">Booking Summary</span></div>
+            <div class="status" style="background:var(--marigold); color:#5a3f0a;">AWAITING PAYMENT</div>
+          </div>
+          <div class="eticket-body">
+            <div>
+              <div class="detail-row"><span>Passenger</span><span id="sumName"></span></div>
+              <div class="detail-row"><span>Phone</span><span id="sumPhone"></span></div>
+              <div class="detail-row"><span>Route</span><span id="sumRoute"></span></div>
+              <div class="detail-row"><span>Journey date</span><span id="sumDate"></span></div>
+              <div class="detail-row"><span>Bus operator</span><span id="sumBus"></span></div>
+              <div class="detail-row"><span>Departure</span><span id="sumDep"></span></div>
+              <div class="detail-row"><span>Seat(s)</span><span id="sumSeats"></span></div>
+              <div class="detail-row"><span>Fare per seat</span><span id="sumFare"></span></div>
+              <div class="detail-row"><span>Total payable</span><span id="sumTotal" class="mono" style="color:var(--teal); font-weight:700;"></span></div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex; gap:12px; margin-top:22px; flex-wrap:wrap;">
+          <button type="button" class="btn ghost" id="editDetailsBtn">← Edit details</button>
+          <button type="button" class="btn dark" id="confirmSummaryBtn">Confirm &amp; proceed to payment</button>
+        </div>
+      </div>
+
+      <!-- Payment -->
+      <div class="passenger-form hidden" id="paymentSection">
+        <h2>Payment</h2>
+
+        <!-- shown only if user is not logged in -->
+        <div id="paymentAuthGate">
+          <div class="alert" style="background:#fff6e6; border-color:var(--marigold); color:#7a5b13;">
+            Please log in to continue to payment. It only takes a moment.
+          </div>
+          <div class="row2">
+            <div>
+              <label for="quickEmail">Email</label>
+              <input type="email" id="quickEmail" placeholder="you@example.com">
+            </div>
+            <div>
+              <label for="quickPassword">Password</label>
+              <input type="password" id="quickPassword" placeholder="••••••••">
+            </div>
+          </div>
+          <button type="button" class="btn dark" id="quickLoginBtn">Log in &amp; continue</button>
+          <div class="divider-or">or</div>
+          <button type="button" class="social-btn" id="quickGoogleBtn">🔵 Sign in with Google</button>
+          <p class="auth-note">New here? <a href="login.html" id="quickSignupLink" style="color:var(--teal); font-weight:600;">Create an account</a> then come back.</p>
+        </div>
+
+        <!-- shown once logged in -->
+        <div id="paymentTabsWrap" class="hidden">
+          <p style="margin-bottom:16px;">Amount payable: <strong id="payAmount" class="mono" style="color:var(--teal); font-size:1.2rem;"></strong></p>
+
+          <div class="pay-tabs">
+            <button type="button" class="pay-tab-btn active" data-pay="upi">UPI / QR Code</button>
+            <button type="button" class="pay-tab-btn" data-pay="card">Debit / Credit Card</button>
+            <button type="button" class="pay-tab-btn" data-pay="netbanking">Net Banking</button>
+          </div>
+
+          <div class="pay-panel active" id="payPanelUpi">
+            <div class="qr-box">
+              <div class="payment-qr-frame"><img class="payment-qr-image" src="assets/upi-qr-only.jpeg" alt="Payment QR code"></div>
+              <div>
+                <p style="font-weight:600; color:var(--indigo);">Scan &amp; pay with any UPI app</p>
+                <p style="font-size:.88rem; color:var(--ink-soft); max-width:34ch;">Google Pay, PhonePe, Paytm or any BHIM-UPI app.</p>
+                <div style="margin-top:12px;">
+                  <label for="upiId">Or enter your UPI ID</label>
+                  <input type="text" id="upiId" placeholder="yourname@upi" style="width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:8px;">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pay-panel" id="payPanelCard">
+            <p style="color:var(--ink-soft); font-size:.92rem; max-width:44ch;">
+              You'll be securely redirected to Razorpay's checkout to enter your card details.
+              Card numbers are never seen by or stored on this site.
+            </p>
+          </div>
+
+          <div class="pay-panel" id="payPanelNetbanking">
+            <p style="color:var(--ink-soft); font-size:.92rem; max-width:44ch;">
+              You'll be securely redirected to Razorpay's checkout to pick your bank and log in
+              to your net banking portal to complete payment.
+            </p>
+          </div>
+
+          <button type="button" class="btn pay-now-btn" id="payNowBtn">Pay <span id="payNowAmount"></span> now</button>
+
+          <div class="processing hidden" id="processingBox">
+            <div class="spinner"></div>
+            <p>Processing your payment securely…</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- E-Ticket -->
+<section id="confirmation" class="hidden">
+  <div class="wrap">
+    <p class="text-center" style="color:var(--teal); font-weight:700; margin-bottom:18px;">✅ Payment successful — your e-ticket is ready</p>
+    <div class="eticket" id="eticket">
+      <div class="eticket-head">
+        <div class="eb">BharatYatra <span style="opacity:.6; font-weight:400;">e-Ticket</span></div>
+        <div class="status">CONFIRMED</div>
+      </div>
+      <div class="eticket-body">
+        <div>
+          <div class="detail-row"><span>Passenger</span><span id="confirmName"></span></div>
+          <div class="detail-row"><span>Route</span><span id="confirmRoute"></span></div>
+          <div class="detail-row"><span>Journey date</span><span id="confirmDate"></span></div>
+          <div class="detail-row"><span>Bus operator</span><span id="confirmBus"></span></div>
+          <div class="detail-row"><span>Departure</span><span id="confirmDep"></span></div>
+          <div class="detail-row"><span>Seat(s)</span><span id="confirmSeats"></span></div>
+          <div class="detail-row"><span>Payment method</span><span id="confirmMethod"></span></div>
+          <div class="detail-row"><span>Amount paid</span><span id="confirmTotal"></span></div>
+          <div class="detail-row"><span>Booked on</span><span id="confirmBookedAt"></span></div>
+        </div>
+        <div class="eticket-qr">
+          <div id="ticketQr"></div>
+          <div class="pnr-big" id="confirmPnr"></div>
+        </div>
+      </div>
+      <div class="eticket-actions no-print">
+        <button class="btn dark" id="printTicketBtn" type="button">🖨️ Print / Save as PDF</button>
+        <a href="my-bookings.html" class="btn ghost">View my bookings</a>
+        <a href="index.html" class="btn ghost">Back to home</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="no-print">
+  <div class="wrap">
+    <div>
+      <h4>BharatYatra</h4>
+      <p style="max-width:32ch; font-size:.9rem;">Book intercity bus tickets across India — search, compare, and pay securely.</p>
+    </div>
+    <div>
+      <h4>Explore</h4>
+      <p><a href="index.html">Home</a></p>
+      <p><a href="routes.html">Popular routes</a></p>
+      <p><a href="about.html">About the project</a></p>
+    </div>
+    <div>
+      <h4>Contact</h4>
+      <p><a href="contact.html">Get in touch</a></p>
+    </div>
+  </div>
+  <div class="wrap fine">© 2026 BharatYatra. All rights reserved.</div>
+</footer>
+
+<script src="common.js"></script>
+<script src="booking.js"></script>
+</body>
+</html>

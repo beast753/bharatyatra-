@@ -1,0 +1,59 @@
+/* =========================================================
+   BharatYatra — ADMIN.HTML page styles
+   Admin login card (same component as login.html's auth card,
+   without the tabs) and the stats/bookings toolbar (same
+   component as booking.html's results toolbar).
+   ========================================================= */
+.auth-wrap{
+  max-width:420px; margin:0 auto;
+  background:#fff; border:1px solid var(--line); border-radius:var(--radius);
+  padding:32px; box-shadow:var(--shadow);
+}
+.auth-wrap label{ display:block; font-size:.8rem; color:var(--ink-soft); margin-bottom:5px; font-family:var(--mono); text-transform:uppercase; letter-spacing:1px; }
+.auth-wrap input{
+  width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:8px;
+  font-family:var(--body); font-size:.95rem; margin-bottom:16px;
+}
+.auth-wrap .btn{ width:100%; text-align:center; }
+
+.results-toolbar{
+  display:flex; justify-content:space-between; align-items:center;
+  flex-wrap:wrap; gap:12px;
+  background:#fff; border:1px solid var(--line); border-radius:var(--radius);
+  padding:16px 20px; margin-bottom:26px;
+}
+.results-toolbar .route{ font-family:var(--display); font-weight:700; color:var(--indigo); font-size:1.2rem; }
+.admin-dashboard-actions{ display:flex; flex-wrap:wrap; gap:8px; }
+.revenue-bar-row{ margin:14px 0; }.revenue-bar-label{ display:flex; justify-content:space-between; gap:16px; margin-bottom:6px; color:var(--ink-soft); font-size:.86rem; }.revenue-bar-label strong{ color:var(--indigo); }.revenue-bar-track{ height:13px; overflow:hidden; border-radius:20px; background:var(--paper-2); }.revenue-bar-fill{ height:100%; min-width:0; border-radius:inherit; transition:width .35s ease; }.revenue-bar-fill.booking{ background:linear-gradient(90deg,var(--teal),#5f9e90); }.revenue-bar-fill.charter{ background:linear-gradient(90deg,var(--marigold),var(--marigold-2)); }
+
+/* ---- tabs ---- */
+.admin-tabs{ display:flex; gap:6px; margin-bottom:18px; }
+.admin-tab-btn{
+  padding:10px 18px; border:2px solid var(--line); border-radius:30px;
+  background:#fff; font-family:var(--display); font-weight:700; font-size:.88rem; color:var(--ink-soft);
+}
+.admin-tab-btn.active{ border-color:var(--indigo); color:var(--indigo); background:var(--paper-2); }
+.admin-tab-panel.hidden{ display:none; }
+
+/* ---- search / sort / export toolbar ---- */
+.admin-toolbar{
+  display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px;
+}
+.admin-toolbar input[type="text"]{
+  flex:1; min-width:220px; padding:10px 14px; border:1px solid var(--line); border-radius:8px;
+  font-family:var(--body); font-size:.92rem;
+}
+.admin-toolbar select{ border:1px solid var(--line); border-radius:8px; padding:10px; font-family:var(--body); }
+.admin-toolbar input[type="text"], .admin-toolbar select{ background:#fffdf9; }
+
+/* ---- per-row admin actions ---- */
+.admin-row-actions{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+.admin-row-actions .btn{ padding:8px 14px; font-size:.82rem; }
+.status-badge{
+  font-family:var(--mono); font-size:.7rem; padding:3px 10px; border-radius:20px;
+  text-transform:uppercase; letter-spacing:.5px;
+}
+.status-badge.confirmed{ background:#e3f3ee; color:var(--teal); }
+.status-badge.cancelled{ background:#fdecec; color:var(--rust); }
+.admin-help{ font-size:.9rem; color:var(--ink-soft); margin:6px 0 14px; }
+.seat-number{ display:inline-flex; margin:4px; min-width:32px; min-height:32px; align-items:center; justify-content:center; border-radius:7px; background:#fdecec; color:var(--rust); font-family:var(--mono); font-size:.8rem; }

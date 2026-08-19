@@ -1,0 +1,40 @@
+/* =========================================================
+   BharatYatra — ROUTES.HTML page styles
+   Route cards (same component used in index.html's trending
+   routes section).
+   ========================================================= */
+.route-card{
+  background:#fff; border:1px solid var(--line); border-radius:var(--radius);
+  padding:20px; display:flex; flex-direction:column; gap:10px;
+}
+.route-card .route-line{
+  display:flex; align-items:center; gap:8px;
+  font-family:var(--display); font-weight:700; color:var(--indigo);
+}
+.route-card .route-line .arrow{ color:var(--marigold); }
+.route-card .meta{ font-size:.85rem; color:var(--ink-soft); font-family:var(--mono); }
+.route-card .price{ font-weight:700; color:var(--teal); font-size:1.15rem; margin-top:auto; }
+.route-card .book-link{
+  align-self:flex-start;
+  font-size:.85rem; font-weight:700; color:var(--rust);
+  border-bottom:1px solid var(--rust);
+}
+.route-card:hover{ transform:translateY(-3px); }
+.route-card .book-link{ transition:color .15s, border-color .15s; }
+.route-card:hover .book-link{ color:var(--indigo); border-color:var(--indigo); }
+.routes-toolbar{
+  margin-bottom:20px;
+}
+.routes-toolbar input{
+  width:100%; max-width:420px;
+  border:1px solid var(--line); border-radius:10px;
+  padding:12px 14px; font-family:var(--body); font-size:1rem;
+  color:var(--ink);
+  background:#fff;
+}
+.no-routes{
+  width:100%; padding:28px 18px;
+  background:#fff8f0; color:var(--rust);
+  border:1px solid #ffddd2; border-radius:var(--radius);
+  text-align:center; font-size:1rem;
+}

@@ -108,7 +108,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     max-height:0; overflow:hidden;
     transition:max-height .25s ease;
   }
-  .nav-links.open{ max-height:340px; }
+  .nav-links.open{ max-height:560px; }
   .nav-links li{ border-top:1px solid rgba(255,255,255,.1); }
   .nav-links a{ display:block; padding:14px 24px; }
   .nav-toggle{ display:block; }

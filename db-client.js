@@ -293,6 +293,32 @@ function byGetAllCharterRequests(limit = 500) {
   );
 }
 
+function byGetMyCharterRequests(limit = 500) {
+  return byRequireReady().then(() => {
+    const user = byCurrentUser();
+    if (!user) throw new Error("Please sign in to view your charter requests.");
+    return sb.from("charter_requests")
+      .select("*, charter_payments(amount, payment_id, paid_at)")
+      .eq("user_id", user.id)
+      .order("requested_at", { ascending: false })
+      .limit(limit)
+      .then(({ data, error }) => {
+        if (error) throw new Error(error.message);
+        return data.map((r) => {
+          const payments = (r.charter_payments || []).slice().sort((a, b) => new Date(b.paid_at) - new Date(a.paid_at));
+          const latest = payments[0];
+          return {
+            ref: r.ref, name: r.name, phone: r.phone, email: r.email, purpose: r.purpose,
+            from: r.from_city, to: r.to_city, date: r.journey_date, returnDate: r.return_date,
+            passengers: r.passengers, busCount: r.bus_count, busType: r.bus_type, notes: r.notes,
+            farePerDay: r.fare_per_day, fareTotal: r.fare_total, requestedAt: r.requested_at,
+            payment: latest ? { amount: latest.amount, paymentId: latest.payment_id, paidAt: latest.paid_at } : null
+          };
+        });
+      });
+  });
+}
+
 function byDeleteCharterRequest(ref) {
   return byRequireReady().then(() =>
     sb.from("charter_requests").delete().eq("ref", ref).then(({ error }) => { if (error) throw new Error(error.message); })

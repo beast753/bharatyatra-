@@ -3,7 +3,6 @@
    Receipt/e-ticket viewer (same component used on booking.html's
    post-payment confirmation screen).
    ========================================================= */
-.bookings-toolbar{ display:flex; align-items:end; justify-content:space-between; gap:18px; margin-bottom:24px; padding:18px 20px; background:#fff; border:1px solid var(--line); border-radius:var(--radius); }.bookings-toolbar h2{ margin:0; }.bookings-toolbar input{ width:min(360px,100%); padding:11px 12px; border:1px solid var(--line); border-radius:9px; background:#fffdf9; font-family:var(--body); }.status-badge{ display:inline-flex; font-family:var(--mono); font-size:.67rem; padding:3px 8px; border-radius:20px; text-transform:uppercase; letter-spacing:.5px; }.status-badge.confirmed{ background:#e3f3ee; color:var(--teal); }.status-badge.cancelled{ background:#fdecec; color:var(--rust); }@media (max-width:600px){.bookings-toolbar{align-items:stretch; flex-direction:column;}.bookings-toolbar input{width:100%;}}
 .eticket{
   max-width:640px; margin:0 auto; background:#fff; border-radius:var(--radius);
   box-shadow:var(--shadow); overflow:hidden; border:1px solid var(--line);
@@ -21,10 +20,12 @@
 .eticket-qr{ display:flex; flex-direction:column; align-items:center; gap:8px; justify-content:flex-start; }
 .eticket-qr .pnr-big{ font-family:var(--mono); font-weight:700; color:var(--rust); font-size:.9rem; text-align:center; }
 .eticket-actions{ padding:18px 26px; background:var(--paper-2); display:flex; gap:12px; flex-wrap:wrap; }
-.review-form{ display:grid; grid-template-columns:auto auto 1fr auto; align-items:center; gap:12px; margin:0; padding:18px 26px; border-top:1px dashed var(--line); background:#fffdf9; }.review-heading h3{ margin:0; font-size:1rem; }.review-heading p{ margin:2px 0 0; color:var(--ink-soft); font-size:.76rem; }.review-controls{ display:flex; align-items:center; gap:7px; }.review-controls label{ color:var(--ink-soft); font-family:var(--mono); font-size:.67rem; letter-spacing:.5px; text-transform:uppercase; }.review-controls select{ padding:8px; border:1px solid var(--line); border-radius:8px; background:#fff; font-family:var(--body); font-size:.8rem; }.review-form textarea{ min-height:40px; padding:9px 10px; border:1px solid var(--line); border-radius:8px; font-family:var(--body); font-size:.82rem; resize:vertical; }.review-form .btn{ padding:10px 14px; font-size:.85rem; white-space:nowrap; }.review-form #reviewMessage{ grid-column:1/-1; }
-@media (max-width:700px){ .review-form{ grid-template-columns:1fr 1fr; padding:18px; }.review-heading{ grid-column:1/-1; }.review-form textarea{ grid-column:1/-1; }.review-form .btn{ justify-self:start; } }
+.account-section{ border-top:1px solid var(--line); margin-top:48px; }
+.charter-status{ display:inline-block; padding:4px 10px; border-radius:20px; font-size:.78rem; font-weight:600; }
+.charter-status.paid{ background:#e5f3ef; color:var(--teal); }
+.charter-status.pending{ background:#fff3d9; color:#8a5c13; }
 @media (max-width:600px){ .eticket-body{ grid-template-columns:1fr; } .eticket-qr{ flex-direction:row; justify-content:center; } }
 
 @media print{
-  #bookingsList, #bookingsEmpty{ display:none !important; }
+  #bookingsList, #bookingsEmpty, .account-section{ display:none !important; }
 }

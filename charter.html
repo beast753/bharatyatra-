@@ -34,8 +34,8 @@
 <header class="hero" style="padding:40px 0 50px;">
   <div class="wrap">
     <div class="hero-eyebrow">Private hire</div>
-    <h1 style="font-size:2.2rem;">Book a bus for anything</h1>
-    <p class="sub">Weddings, corporate offsites, school trips, pilgrimages, family functions — tell us the details and our team will put together a quote.</p>
+    <h1 style="font-size:2.2rem;">Hire a bus for your group</h1>
+    <p class="sub">Share your route, travel date and group size. We will recommend the buses you need and prepare your booking quote.</p>
   </div>
 </header>
 
@@ -44,23 +44,10 @@
 
     <!-- Request form -->
     <form class="passenger-form" id="charterForm">
-      <h2 style="margin-bottom:18px;">Trip details</h2>
+      <h2 style="margin-bottom:6px;">Plan your charter</h2>
+      <p class="charter-intro">Start with your route and date, then select the group size. The bus count updates automatically.</p>
 
-      <div class="row2">
-        <div>
-          <label for="charterName">Full name</label>
-          <input type="text" id="charterName" placeholder="e.g. Ananya Sharma" required>
-        </div>
-        <div>
-          <label for="charterPhone">Phone number</label>
-          <input type="tel" id="charterPhone" placeholder="10-digit mobile number" required>
-        </div>
-      </div>
-
-      <div>
-        <label for="charterEmail">Email</label>
-        <input type="email" id="charterEmail" placeholder="you@example.com" required>
-      </div>
+      <h3 class="charter-step"><span>1</span> Where and when?</h3>
 
       <div class="row2">
         <div>
@@ -73,6 +60,7 @@
         </div>
       </div>
 
+      <h3 class="charter-step"><span>2</span> Your group and coach</h3>
       <div class="row2">
         <div>
           <label for="charterDate">Journey date</label>
@@ -111,7 +99,24 @@
         </div>
       </div>
 
-      <button type="submit" class="btn dark">Request a quote</button>
+      <h3 class="charter-step"><span>3</span> Your contact details</h3>
+      <div class="row2">
+        <div>
+          <label for="charterName">Full name</label>
+          <input type="text" id="charterName" placeholder="e.g. Ananya Sharma" required>
+        </div>
+        <div>
+          <label for="charterPhone">Phone number</label>
+          <input type="tel" id="charterPhone" placeholder="10-digit mobile number" required>
+        </div>
+      </div>
+
+      <div>
+        <label for="charterEmail">Email</label>
+        <input type="email" id="charterEmail" placeholder="you@example.com" required>
+      </div>
+
+      <button type="submit" class="btn dark">Get my charter quote</button>
     </form>
 
     <!-- Confirmation -->

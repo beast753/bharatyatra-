@@ -36,23 +36,30 @@
   <div class="wrap">
     <div class="hero-eyebrow">Your account</div>
     <h1 style="font-size:2.2rem;">My bookings</h1>
-    <p class="sub">Every ticket you've booked on this device, with its receipt and PNR.</p>
+    <p class="sub">Your bus tickets and charter requests in one place.</p>
   </div>
 </header>
 
 <section>
   <div class="wrap">
 
-    <div class="bookings-toolbar">
-      <div><span class="kicker">Ticket centre</span><h2>Find a booking</h2></div>
-      <input type="search" id="bookingsSearch" placeholder="Search route, operator or PNR" aria-label="Search your bookings">
-    </div>
-
     <div id="bookingsEmpty" class="alert hidden">
       You haven't booked any tickets yet on this device. <a href="index.html" style="color:var(--teal); font-weight:600;">Search for a bus</a> to get started.
     </div>
 
     <div class="grid-3" id="bookingsList"></div>
+
+    <div class="account-section">
+      <div class="section-head" style="margin-top:48px; margin-bottom:22px;">
+        <div class="kicker">Private travel</div>
+        <h2>My charter requests</h2>
+        <p>Charter requests submitted while signed in to this account.</p>
+      </div>
+      <div id="charterRequestsEmpty" class="alert hidden">
+        You haven't submitted any charter requests yet. <a href="charter.html" style="color:var(--teal); font-weight:600;">Charter a bus</a> to get started.
+      </div>
+      <div class="grid-3" id="charterRequestsList"></div>
+    </div>
 
     <!-- Receipt / e-ticket viewer -->
     <div id="receiptView" class="hidden mt-30">
@@ -85,16 +92,14 @@
           <button class="btn ghost" id="printReceiptBtn" type="button">Print</button>
           <button class="btn ghost" id="cancelBookingBtn" type="button">Cancel &amp; request refund</button>
           <button class="btn ghost" id="closeReceiptBtn" type="button">Close</button>
-          <a href="contact.html" class="btn ghost">Need help?</a>
         </div>
-        <form id="reviewForm" class="review-form no-print">
-          <div class="review-heading"><h3>Rate your journey</h3><p>Help other travellers choose better.</p></div>
-          <div class="review-controls">
-            <label for="reviewRating">Your rating</label>
-            <select id="reviewRating"><option value="5">★★★★★ Excellent</option><option value="4">★★★★ Good</option><option value="3">★★★ Average</option><option value="2">★★ Poor</option><option value="1">★ Very poor</option></select>
-          </div>
-          <textarea id="reviewComment" rows="2" placeholder="Optional: share a short review"></textarea>
-          <button class="btn dark" type="submit">Submit review</button>
+        <form id="reviewForm" class="no-print" style="margin:18px; padding:16px; border-top:1px dashed var(--line);">
+          <h3 style="margin-bottom:8px;">Rate your journey</h3>
+          <label for="reviewRating">Rating</label>
+          <select id="reviewRating"><option value="5">5 - Excellent</option><option value="4">4 - Good</option><option value="3">3 - Average</option><option value="2">2 - Poor</option><option value="1">1 - Very poor</option></select>
+          <label for="reviewComment">Review (optional)</label>
+          <textarea id="reviewComment" rows="3" placeholder="Tell other travellers about your trip"></textarea>
+          <button class="btn dark" type="submit" style="margin-top:10px;">Submit review</button>
           <p id="reviewMessage" class="hidden" style="margin-top:10px;"></p>
         </form>
       </div>

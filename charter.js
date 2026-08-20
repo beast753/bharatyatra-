@@ -7,21 +7,6 @@
    ========================================================= */
 
 const BY_CHARTER_KEY = "by_charter_requests";
-const INDIAN_STATES_AND_UTS = [
-  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal",
-  "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"
-];
-
-function populateIndianStateSelects() {
-  document.querySelectorAll(".state-select").forEach((select) => {
-    INDIAN_STATES_AND_UTS.forEach((state) => {
-      const option = document.createElement("option");
-      option.value = state;
-      option.textContent = state;
-      select.appendChild(option);
-    });
-  });
-}
 
 // Fixed per-bus, per-day fares. AC types cost more than Non-AC, and
 // bigger/sleeper coaches cost more than seaters — same spirit as the
@@ -34,6 +19,31 @@ const CHARTER_FARE_PER_BUS_PER_DAY = {
   "Volvo Multi-Axle": 20000
 };
 
+const CHARTER_BUS_CAPACITY = {
+  "Mini bus (up to 20 seats)": 20,
+  "Non-AC Seater": 40,
+  "AC Seater": 40,
+  "AC Sleeper": 30,
+  "Volvo Multi-Axle": 50
+};
+
+function getRequiredBusCount(passengers, busType) {
+  const capacity = CHARTER_BUS_CAPACITY[busType] || 40;
+  return Math.max(1, Math.ceil(Number(passengers || 0) / capacity));
+}
+
+function updateBusRecommendation() {
+  const passengers = Number(document.getElementById("charterPassengers").value || 0);
+  const busType = document.getElementById("charterBusType").value;
+  const capacity = CHARTER_BUS_CAPACITY[busType] || 40;
+  const summary = document.getElementById("charterBusSummary");
+  const hint = document.getElementById("charterCapacityHint");
+  hint.textContent = `Capacity: up to ${capacity} passengers per bus.`;
+  summary.innerHTML = passengers
+    ? `<strong>${getRequiredBusCount(passengers, busType)} bus${getRequiredBusCount(passengers, busType) > 1 ? "es" : ""}</strong>&nbsp; needed for ${passengers} passenger${passengers > 1 ? "s" : ""}.`
+    : "Enter passengers to see the number of buses needed.";
+}
+
 function charterTripDays(dateStr, returnDateStr) {
   if (!returnDateStr) return 1;
   const start = new Date(dateStr + "T00:00:00");
@@ -45,13 +55,6 @@ function charterTripDays(dateStr, returnDateStr) {
 function calculateCharterFare(busType, busCount, days) {
   const perDay = CHARTER_FARE_PER_BUS_PER_DAY[busType] || CHARTER_FARE_PER_BUS_PER_DAY["Non-AC Seater"];
   return { perDay, total: perDay * busCount * days };
-}
-function updateCharterEstimate() {
-  const busType = document.getElementById("charterBusType").value, busCount = Number(document.getElementById("charterBusCount").value) || 1, date = document.getElementById("charterDate").value, returnDate = document.getElementById("charterReturnDate").value, passengers = Number(document.getElementById("charterPassengers").value) || 0;
-  const days = date ? charterTripDays(date, returnDate) : 1, fare = calculateCharterFare(busType, busCount, days);
-  document.getElementById("charterLiveEstimate").textContent = `₹${fare.total.toLocaleString("en-IN")}`;
-  document.getElementById("charterEstimateNote").textContent = `₹${fare.perDay.toLocaleString("en-IN")} per bus/day · ${busCount} bus${busCount > 1 ? "es" : ""} · ${days} day${days > 1 ? "s" : ""}. Final price depends on route and stops.`;
-  document.getElementById("busRecommendation").textContent = !passengers ? "Enter passenger count for a bus recommendation." : passengers <= 20 ? "Recommended: one mini bus or AC seater." : passengers <= 45 ? "Recommended: one full-size coach." : `Recommended: at least ${Math.ceil(passengers / 45)} full-size coaches.`;
 }
 
 function byGetLocalCharterRequests() {
@@ -75,22 +78,17 @@ document.getElementById("charterForm").addEventListener("submit", (e) => {
   const phone = document.getElementById("charterPhone").value.trim();
   const email = document.getElementById("charterEmail").value.trim();
   const purpose = document.getElementById("charterPurpose").value;
-  const tripType = document.getElementById("charterTripType").value;
-  const fromState = document.getElementById("charterFromState").value;
-  const toState = document.getElementById("charterToState").value;
   const from = document.getElementById("charterFrom").value.trim();
   const to = document.getElementById("charterTo").value.trim();
   const date = document.getElementById("charterDate").value;
   const returnDate = document.getElementById("charterReturnDate").value;
   const passengers = document.getElementById("charterPassengers").value;
-  const busCount = Number(document.getElementById("charterBusCount").value) || 1;
   const busType = document.getElementById("charterBusType").value;
-  const stops = document.getElementById("charterStops").value.trim();
-  const amenities = Array.from(document.querySelectorAll('input[name="charterAmenity"]:checked'), (input) => input.value);
+  const busCount = getRequiredBusCount(passengers, busType);
   const notes = document.getElementById("charterNotes").value.trim();
 
-  if (!name || !phone || !email || !fromState || !toState || !from || !to || !date || !passengers || !busCount) {
-    alert("Please fill in all required details, including pickup and drop states in India.");
+  if (!name || !phone || !email || !from || !to || !date || !passengers || !busCount) {
+    alert("Please fill in all the required fields.");
     return;
   }
 
@@ -99,8 +97,8 @@ document.getElementById("charterForm").addEventListener("submit", (e) => {
 
   const ref = "CH" + Date.now().toString().slice(-8);
   const request = {
-    ref, name, phone, email, purpose, tripType, fromState, toState, from, to, stops, date, returnDate,
-    passengers: Number(passengers), busCount, busType, amenities, notes,
+    ref, name, phone, email, purpose, from, to, date, returnDate,
+    passengers: Number(passengers), busCount, busType, notes,
     farePerDay: fare.perDay, fareTotal: fare.total,
     requestedAt: new Date().toISOString()
   };
@@ -116,11 +114,10 @@ document.getElementById("charterForm").addEventListener("submit", (e) => {
 
   document.getElementById("ccRef").textContent = ref;
   document.getElementById("ccName").textContent = name;
-  document.getElementById("ccRoute").textContent = `${from}, ${fromState} → ${to}, ${toState}`;
+  document.getElementById("ccRoute").textContent = `${from} → ${to}`;
   document.getElementById("ccDate").textContent = new Date(date + "T00:00:00").toDateString() + (returnDate ? ` – ${new Date(returnDate + "T00:00:00").toDateString()}` : "");
   document.getElementById("ccPax").textContent = passengers;
   document.getElementById("ccBusType").textContent = busType;
-  document.getElementById("ccAmenities").textContent = amenities.length ? amenities.join(", ") : "No preference";
 
   document.getElementById("fareBusType").textContent = `${busType} × ${busCount} bus${busCount > 1 ? "es" : ""}`;
   document.getElementById("fareRate").textContent = `₹${fare.perDay}`;
@@ -159,8 +156,8 @@ function wireCharterPayment(charterRef, amount) {
 
     // Render a UPI-style QR code encoding the fixed amount
     const qrEl = document.getElementById("charterQrcodeCanvas");
-    if (qrEl && typeof QRCode !== "undefined") {
-      qrEl.innerHTML = "";
+    qrEl.innerHTML = "";
+    if (typeof QRCode !== "undefined") {
       new QRCode(qrEl, {
         text: `upi://pay?pa=bharatyatra@upi&pn=BharatYatra&am=${amount}&cu=INR&tn=Charter%20payment%20${charterRef}`,
         width: 160,
@@ -219,23 +216,10 @@ function wireCharterPayment(charterRef, amount) {
 
 // default min date = today
 document.addEventListener("DOMContentLoaded", () => {
-  populateIndianStateSelects();
   const today = new Date().toISOString().split("T")[0];
   document.getElementById("charterDate").min = today;
   document.getElementById("charterReturnDate").min = today;
-  const tripType = document.getElementById("charterTripType"), returnInput = document.getElementById("charterReturnDate");
-  tripType.addEventListener("change", () => { returnInput.required = tripType.value !== "one-way"; if (!returnInput.required) returnInput.value = ""; updateCharterEstimate(); });
-  ["charterDate", "charterReturnDate", "charterPassengers", "charterBusCount", "charterBusType"].forEach((id) => { document.getElementById(id).addEventListener("input", updateCharterEstimate); document.getElementById(id).addEventListener("change", updateCharterEstimate); });
-  updateCharterEstimate();
-  const customQrUpload = document.getElementById("charterCustomQrUpload");
-  if (customQrUpload) customQrUpload.addEventListener("change", () => {
-    const file = customQrUpload.files && customQrUpload.files[0];
-    const preview = document.getElementById("charterCustomQrPreview");
-    if (!file || !preview) return;
-    preview.src = URL.createObjectURL(file);
-    preview.classList.remove("hidden");
-  });
-  document.querySelectorAll('input[name="charterAmenity"]').forEach((input) => {
-    input.addEventListener("change", () => input.closest("label").classList.toggle("selected", input.checked));
-  });
+  document.getElementById("charterPassengers").addEventListener("input", updateBusRecommendation);
+  document.getElementById("charterBusType").addEventListener("change", updateBusRecommendation);
+  updateBusRecommendation();
 });

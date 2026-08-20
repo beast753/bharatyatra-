@@ -41,11 +41,6 @@ function initAdminPage() {
   document.getElementById("adminSignOutBtn").addEventListener("click", () => {
     bySignOut().then(() => showState("login"));
   });
-  document.getElementById("refreshDashboardBtn").addEventListener("click", () => {
-    loadAdminBookings();
-    loadAdminUsers();
-    loadAdminCharterRequests();
-  });
 
   byOnAuthChange((user) => {
     if (!user) { showState("login"); return; }
@@ -82,33 +77,11 @@ function initAdminPage() {
     `;
   }
 
-  function renderRevenueChart() {
-    const chartEl = document.getElementById("revenueChart");
-    const todayEl = document.getElementById("revenueToday");
-    if (!chartEl || !todayEl) return;
-    const bookingRevenue = allBookings.filter((b) => b.status !== "cancelled").reduce((sum, b) => sum + Number(b.total || 0), 0);
-    const charterRevenue = allCharterRequests.filter((r) => r.payment).reduce((sum, r) => sum + Number(r.payment.amount || 0), 0);
-    const highest = Math.max(bookingRevenue, charterRevenue, 1);
-    const today = new Date().toISOString().slice(0, 10);
-    const todayRevenue = allBookings.filter((b) => b.status !== "cancelled" && String(b.bookedAt || "").slice(0, 10) === today)
-      .reduce((sum, b) => sum + Number(b.total || 0), 0);
-    chartEl.innerHTML = [
-      ["Regular bookings", bookingRevenue, "booking"],
-      ["Charter payments", charterRevenue, "charter"]
-    ].map(([label, amount, type]) => `
-      <div class="revenue-bar-row">
-        <div class="revenue-bar-label"><span>${label}</span><strong>₹${Number(amount).toLocaleString("en-IN")}</strong></div>
-        <div class="revenue-bar-track"><div class="revenue-bar-fill ${type}" style="width:${Math.max((Number(amount) / highest) * 100, Number(amount) ? 8 : 0)}%"></div></div>
-      </div>`).join("");
-    todayEl.textContent = `Today's confirmed booking revenue: ₹${todayRevenue.toLocaleString("en-IN")} · Last refreshed ${new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}`;
-  }
-
   // ---- Bookings ----
   function loadAdminBookings() {
     byGetAllBookings().then((bookings) => {
       allBookings = bookings;
       renderStats(allBookings);
-      renderRevenueChart();
       renderBookings();
     }).catch((err) => {
       document.getElementById("adminBookingsList").innerHTML = `<div class="alert">Couldn't load bookings: ${err.message}</div>`;
@@ -120,17 +93,10 @@ function initAdminPage() {
     const emptyEl = document.getElementById("adminBookingsEmpty");
     const query = document.getElementById("bookingSearch").value.trim().toLowerCase();
     const sortBy = document.getElementById("bookingSort").value;
-    const statusFilter = document.getElementById("bookingStatusFilter").value;
-    const dateFilter = document.getElementById("bookingDateFilter").value;
-    const today = new Date().toISOString().slice(0, 10);
 
     let rows = allBookings.filter((b) => {
-      const matchesQuery = !query || [b.pnr, b.passengerName, b.from, b.to].some((f) => (f || "").toLowerCase().includes(query));
-      const matchesStatus = statusFilter === "all" || (b.status || "confirmed") === statusFilter;
-      const matchesDate = dateFilter === "all" || (dateFilter === "today" && b.date === today)
-        || (dateFilter === "upcoming" && String(b.date || "") > today)
-        || (dateFilter === "past" && String(b.date || "") < today);
-      return matchesQuery && matchesStatus && matchesDate;
+      if (!query) return true;
+      return [b.pnr, b.passengerName, b.from, b.to].some((f) => (f || "").toLowerCase().includes(query));
     });
 
     rows = rows.slice().sort((a, b) => {
@@ -175,7 +141,6 @@ function initAdminPage() {
           ${isCancelled
             ? `<button type="button" class="btn ghost" data-action="restore" data-id="${b.id}">Mark as confirmed</button>`
             : `<button type="button" class="btn ghost" data-action="cancel" data-id="${b.id}">Cancel booking</button>`}
-          <button type="button" class="btn ghost" data-action="copy-pnr" data-pnr="${b.pnr || ""}">Copy PNR</button>
           <button type="button" class="btn ghost" data-action="delete" data-id="${b.id}" style="border-color:var(--rust); color:var(--rust);">Delete permanently</button>
         </div>
       `;
@@ -198,18 +163,10 @@ function initAdminPage() {
         byDeleteBooking(btn.dataset.id).then(loadAdminBookings);
       });
     });
-    listEl.querySelectorAll("[data-action='copy-pnr']").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        try { await navigator.clipboard.writeText(btn.dataset.pnr); btn.textContent = "PNR copied"; }
-        catch (err) { btn.textContent = btn.dataset.pnr || "No PNR"; }
-      });
-    });
   }
 
   document.getElementById("bookingSearch").addEventListener("input", renderBookings);
   document.getElementById("bookingSort").addEventListener("change", renderBookings);
-  document.getElementById("bookingStatusFilter").addEventListener("change", renderBookings);
-  document.getElementById("bookingDateFilter").addEventListener("change", renderBookings);
 
   // ---- CSV export ----
   document.getElementById("exportCsvBtn").addEventListener("click", () => {
@@ -296,27 +253,17 @@ function initAdminPage() {
   });
 
   // ---- Charter requests ----
-  // Charter requests and their payments are saved in this browser's local
-  // storage by charter.js (there's no Firestore wiring for charter data
-  // yet), so this reads the same two keys and merges them by reference ID.
+  // Charter requests are stored in Supabase so the admin dashboard can show
+  // requests made from any device, rather than only this browser's storage.
   function loadAdminCharterRequests() {
-    let requests = [];
-    let payments = [];
-    try {
-      requests = JSON.parse(localStorage.getItem("by_charter_requests") || "[]");
-    } catch (err) { requests = []; }
-    try {
-      payments = JSON.parse(localStorage.getItem("by_charter_payments") || "[]");
-    } catch (err) { payments = []; }
-
-    allCharterRequests = requests.map((req) => {
-      const payment = payments.find((p) => p.charterRef === req.ref);
-      return { ...req, payment: payment || null };
+    byGetAllCharterRequests().then((requests) => {
+      allCharterRequests = requests;
+      renderCharterStats();
+      renderCharterRequests();
+    }).catch((err) => {
+      const listEl = document.getElementById("adminCharterList");
+      listEl.innerHTML = `<div class="alert">Couldn't load charter requests: ${err.message}</div>`;
     });
-
-    renderCharterStats();
-    renderRevenueChart();
-    renderCharterRequests();
   }
 
   function renderCharterStats() {
@@ -334,12 +281,10 @@ function initAdminPage() {
     const listEl = document.getElementById("adminCharterList");
     const emptyEl = document.getElementById("adminCharterEmpty");
     const query = document.getElementById("charterSearch").value.trim().toLowerCase();
-    const statusFilter = document.getElementById("charterStatusFilter").value;
 
     const rows = allCharterRequests.filter((r) => {
-      const matchesQuery = !query || [r.ref, r.name, r.from, r.to, r.phone, r.email].some((f) => (f || "").toLowerCase().includes(query));
-      const matchesStatus = statusFilter === "all" || (statusFilter === "paid" ? !!r.payment : !r.payment);
-      return matchesQuery && matchesStatus;
+      if (!query) return true;
+      return [r.ref, r.name, r.from, r.to, r.phone, r.email].some((f) => (f || "").toLowerCase().includes(query));
     });
 
     listEl.innerHTML = "";
@@ -385,19 +330,14 @@ function initAdminPage() {
       btn.addEventListener("click", () => {
         if (!confirm("Permanently delete this charter request? This can't be undone.")) return;
         const ref = btn.dataset.ref;
-        try {
-          const requests = JSON.parse(localStorage.getItem("by_charter_requests") || "[]").filter((r) => r.ref !== ref);
-          localStorage.setItem("by_charter_requests", JSON.stringify(requests));
-          const payments = JSON.parse(localStorage.getItem("by_charter_payments") || "[]").filter((p) => p.charterRef !== ref);
-          localStorage.setItem("by_charter_payments", JSON.stringify(payments));
-        } catch (err) { /* ignore storage errors */ }
-        loadAdminCharterRequests();
+        byDeleteCharterRequest(ref)
+          .then(loadAdminCharterRequests)
+          .catch((err) => alert(`Couldn't delete charter request: ${err.message}`));
       });
     });
   }
 
   document.getElementById("charterSearch").addEventListener("input", renderCharterRequests);
-  document.getElementById("charterStatusFilter").addEventListener("change", renderCharterRequests);
 
   document.getElementById("exportCharterCsvBtn").addEventListener("click", () => {
     const header = ["Reference", "Name", "Phone", "Email", "Purpose", "From", "To", "Journey Date", "Return Date", "Passengers", "Bus Type", "Bus Count", "Estimated Fare", "Paid Amount", "Payment ID", "Requested At"];

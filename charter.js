@@ -77,7 +77,6 @@ document.getElementById("charterForm").addEventListener("submit", (e) => {
   const name = document.getElementById("charterName").value.trim();
   const phone = document.getElementById("charterPhone").value.trim();
   const email = document.getElementById("charterEmail").value.trim();
-  const purpose = document.getElementById("charterPurpose").value;
   const from = document.getElementById("charterFrom").value.trim();
   const to = document.getElementById("charterTo").value.trim();
   const date = document.getElementById("charterDate").value;
@@ -85,7 +84,6 @@ document.getElementById("charterForm").addEventListener("submit", (e) => {
   const passengers = document.getElementById("charterPassengers").value;
   const busType = document.getElementById("charterBusType").value;
   const busCount = getRequiredBusCount(passengers, busType);
-  const notes = document.getElementById("charterNotes").value.trim();
 
   if (!name || !phone || !email || !from || !to || !date || !passengers || !busCount) {
     alert("Please fill in all the required fields.");
@@ -97,8 +95,8 @@ document.getElementById("charterForm").addEventListener("submit", (e) => {
 
   const ref = "CH" + Date.now().toString().slice(-8);
   const request = {
-    ref, name, phone, email, purpose, from, to, date, returnDate,
-    passengers: Number(passengers), busCount, busType, notes,
+    ref, name, phone, email, purpose: "Charter bus booking", from, to, date, returnDate,
+    passengers: Number(passengers), busCount, busType, notes: "",
     farePerDay: fare.perDay, fareTotal: fare.total,
     requestedAt: new Date().toISOString()
   };

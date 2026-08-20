@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="base.css">
-<link rel="stylesheet" href="charter.css?v=20260819">
+<link rel="stylesheet" href="charter.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -45,13 +45,7 @@
     <!-- Request form -->
     <form class="passenger-form" id="charterForm">
       <h2 style="margin-bottom:18px;">Trip details</h2>
-      <ol class="charter-progress" aria-label="Charter request progress">
-        <li class="active"><span>1</span> Trip details</li>
-        <li><span>2</span> Preferences</li>
-        <li><span>3</span> Get quote</li>
-      </ol>
 
-      <h3 class="form-section-title">Your contact</h3>
       <div class="row2">
         <div>
           <label for="charterName">Full name</label>
@@ -63,7 +57,6 @@
         </div>
       </div>
 
-      <h3 class="form-section-title">Contact &amp; trip purpose</h3>
       <div class="row2">
         <div>
           <label for="charterEmail">Email</label>
@@ -82,36 +75,24 @@
         </div>
       </div>
 
-      <h3 class="form-section-title">Your journey</h3>
       <div class="row2">
         <div>
-          <label for="charterFromState">Pickup state / UT</label>
-          <select id="charterFromState" class="state-select" required><option value="">Select an Indian state or UT</option></select>
+          <label for="charterFrom">Pickup city</label>
+          <input type="text" id="charterFrom" placeholder="e.g. Pune" required>
         </div>
         <div>
-          <label for="charterToState">Drop state / UT</label>
-          <select id="charterToState" class="state-select" required><option value="">Select an Indian state or UT</option></select>
-        </div>
-      </div>
-      <div class="row2">
-        <div>
-          <label for="charterFrom">Pickup city or venue</label>
-          <input type="text" id="charterFrom" placeholder="e.g. Pune or Hinjawadi" required>
-        </div>
-        <div>
-          <label for="charterTo">Drop city or venue</label>
+          <label for="charterTo">Destination</label>
           <input type="text" id="charterTo" placeholder="e.g. Mahabaleshwar" required>
         </div>
       </div>
 
       <div class="row2">
-        <div><label for="charterTripType">Trip type</label><select id="charterTripType"><option value="one-way">One-way</option><option value="round-trip">Round trip</option><option value="multi-day">Multi-day hire</option></select></div>
         <div>
           <label for="charterDate">Journey date</label>
           <input type="date" id="charterDate" required>
         </div>
         <div>
-          <label for="charterReturnDate">Return / final day</label>
+          <label for="charterReturnDate">Return date (optional)</label>
           <input type="date" id="charterReturnDate">
         </div>
       </div>
@@ -119,20 +100,16 @@
       <div class="row2">
         <div>
           <label for="charterPassengers">Number of passengers</label>
-          <input type="number" id="charterPassengers" min="1" max="60" placeholder="e.g. 35" required>
-          <p class="field-hint" id="busRecommendation">Enter passenger count for a bus recommendation.</p>
+          <input type="number" id="charterPassengers" min="1" max="1000" placeholder="e.g. 35" required>
         </div>
         <div>
-          <label for="charterBusCount">How many buses do you need?</label>
-          <input type="number" id="charterBusCount" min="1" max="20" value="1" required>
+          <label>Recommended buses</label>
+          <div class="charter-bus-summary" id="charterBusSummary" aria-live="polite">
+            Enter passengers to see the number of buses needed.
+          </div>
         </div>
       </div>
 
-      <h3 class="form-section-title">Bus preferences</h3>
-      <div style="margin-bottom:14px;"><label for="charterStops">Additional pickup or drop points</label><input type="text" id="charterStops" placeholder="Optional: e.g. Wakad, Hinjawadi"></div>
-      <fieldset class="amenity-picker"><legend>Required amenities <span>(optional)</span></legend><div class="amenity-options">
-        <label><input type="checkbox" name="charterAmenity" value="Air conditioning"> Air conditioning</label><label><input type="checkbox" name="charterAmenity" value="Wi-Fi"> Wi-Fi</label><label><input type="checkbox" name="charterAmenity" value="Charging points"> Charging points</label><label><input type="checkbox" name="charterAmenity" value="Washroom"> Washroom</label><label><input type="checkbox" name="charterAmenity" value="TV / music system"> TV / music system</label><label><input type="checkbox" name="charterAmenity" value="Wheelchair access"> Wheelchair access</label>
-      </div></fieldset>
       <div class="row2">
         <div>
           <label for="charterBusType">Preferred bus type</label>
@@ -143,9 +120,9 @@
             <option>Mini bus (up to 20 seats)</option>
             <option>Volvo Multi-Axle</option>
           </select>
+          <p class="field-help" id="charterCapacityHint">Capacity: up to 40 passengers per bus.</p>
         </div>
       </div>
-      <aside class="charter-estimate" aria-live="polite"><span class="estimate-label">Estimated starting fare</span><strong id="charterLiveEstimate"></strong><span id="charterEstimateNote">Based on bus type, bus count, and trip duration. Final price depends on route and stops.</span></aside>
 
       <div style="margin-bottom:14px;">
         <label for="charterNotes">Anything else we should know?</label>
@@ -170,7 +147,6 @@
             <div class="detail-row"><span>Journey date</span><span id="ccDate"></span></div>
             <div class="detail-row"><span>Passengers</span><span id="ccPax"></span></div>
             <div class="detail-row"><span>Bus type</span><span id="ccBusType"></span></div>
-            <div class="detail-row"><span>Amenities</span><span id="ccAmenities"></span></div>
           </div>
         </div>
         <div class="eticket-actions no-print">
@@ -211,7 +187,7 @@
 
           <div class="pay-panel active" id="charterPayPanelUpi">
             <div class="qr-box">
-              <div class="payment-qr-frame"><img class="payment-qr-image" src="assets/upi-qr-only.jpeg" alt="Payment QR code"></div>
+              <div id="charterQrcodeCanvas"></div>
               <div>
                 <p style="font-weight:600; color:var(--indigo);">Scan &amp; pay with any UPI app</p>
                 <p style="font-size:.88rem; color:var(--ink-soft); max-width:34ch;">Google Pay, PhonePe, Paytm or any BHIM-UPI app.</p>

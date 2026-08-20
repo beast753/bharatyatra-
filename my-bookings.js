@@ -10,30 +10,22 @@ function initMyBookingsPage() {
   if (!listEl) return; // not on this page
 
   const emptyEl = document.getElementById("bookingsEmpty");
-  const searchInput = document.getElementById("bookingsSearch");
   let selectedBooking = null;
-  let allBookings = [];
   const renderBookings = (bookings) => {
-    allBookings = bookings;
     listEl.innerHTML = "";
-    const query = (searchInput ? searchInput.value : "").trim().toLowerCase();
-    const visibleBookings = bookings.filter((b) => !query || [b.from, b.to, b.operator, b.pnr, b.status]
-      .some((value) => String(value || "").toLowerCase().includes(query)));
-    if (visibleBookings.length === 0) {
+    if (bookings.length === 0) {
       if (emptyEl) emptyEl.classList.remove("hidden");
-      if (emptyEl && query) emptyEl.textContent = "No bookings match that search. Try a route, operator, or PNR.";
       return;
     }
     if (emptyEl) emptyEl.classList.add("hidden");
 
-    visibleBookings.forEach((b) => {
+    bookings.forEach((b) => {
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
       <div class="tags" style="margin-bottom:8px;">
         <span class="pill">${b.operator}</span>
         <span class="pill mono">PNR ${b.pnr}</span>
-        <span class="status-badge ${b.status === "cancelled" ? "cancelled" : "confirmed"}">${b.status || "confirmed"}</span>
       </div>
       <h3>${b.from} → ${b.to}</h3>
       <p style="font-size:.9rem; color:var(--ink-soft); line-height:1.6;">
@@ -48,7 +40,6 @@ function initMyBookingsPage() {
       listEl.appendChild(card);
     });
   };
-  if (searchInput) searchInput.addEventListener("input", () => renderBookings(allBookings));
 
   // Supabase is the source of truth. Keep the local copy as an offline
   // fallback so a ticket remains visible when the network is unavailable.
@@ -56,6 +47,41 @@ function initMyBookingsPage() {
     byGetMyBookings().then(renderBookings).catch(() => renderBookings(byGetLocalBookings()));
   } else {
     renderBookings(byGetLocalBookings());
+  }
+
+  const charterListEl = document.getElementById("charterRequestsList");
+  const charterEmptyEl = document.getElementById("charterRequestsEmpty");
+  const renderCharterRequests = (requests) => {
+    charterListEl.innerHTML = "";
+    if (!requests.length) {
+      charterEmptyEl.classList.remove("hidden");
+      return;
+    }
+    charterEmptyEl.classList.add("hidden");
+    requests.forEach((request) => {
+      const paid = !!request.payment;
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <div class="tags" style="margin-bottom:8px; display:flex; gap:8px; flex-wrap:wrap;">
+          <span class="pill mono">Ref ${request.ref}</span>
+          <span class="charter-status ${paid ? "paid" : "pending"}">${paid ? "Paid" : "Payment pending"}</span>
+        </div>
+        <h3>${request.from} → ${request.to}</h3>
+        <p style="font-size:.9rem; color:var(--ink-soft); line-height:1.6;">
+          Journey: ${new Date(request.date + "T00:00:00").toDateString()}${request.returnDate ? ` – ${new Date(request.returnDate + "T00:00:00").toDateString()}` : ""}<br>
+          ${request.busType} · ${request.busCount} bus${request.busCount > 1 ? "es" : ""} · ${request.passengers} passengers<br>
+          Estimated fare: ₹${Number(request.fareTotal || 0).toLocaleString("en-IN")}<br>
+          ${paid ? `Paid: ₹${Number(request.payment.amount).toLocaleString("en-IN")}` : "Payment has not been made yet"}
+        </p>`;
+      charterListEl.appendChild(card);
+    });
+  };
+
+  if (typeof byGetMyCharterRequests === "function" && byCurrentUser()) {
+    byGetMyCharterRequests().then(renderCharterRequests).catch(() => renderCharterRequests([]));
+  } else {
+    renderCharterRequests([]);
   }
 
   function showReceipt(b) {

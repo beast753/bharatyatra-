@@ -212,12 +212,20 @@ create policy "admins manage reviews" on bus_reviews for all
 -- the site's charter form); admins can see/edit/delete all
 create policy "anyone can submit charter request" on charter_requests
   for insert with check (true);
+create policy "users read own charter requests" on charter_requests
+  for select using (auth.uid() = user_id);
 create policy "admins manage charter requests" on charter_requests
   for all using (exists (select 1 from admins where email = auth.jwt() ->> 'email'));
 
 -- charter payments: anyone can record one against a request; admins manage all
 create policy "anyone can record charter payment" on charter_payments
   for insert with check (true);
+create policy "users read own charter payments" on charter_payments
+  for select using (exists (
+    select 1 from charter_requests
+    where charter_requests.ref = charter_payments.charter_ref
+      and charter_requests.user_id = auth.uid()
+  ));
 create policy "admins manage charter payments" on charter_payments
   for all using (exists (select 1 from admins where email = auth.jwt() ->> 'email'));
 
